@@ -1,0 +1,223 @@
+{
+    "player": {
+        "id": "lamar_jackson",
+        "slug": "jackson",
+        "name": "Lamar Jackson",
+        "team": "Baltimore Ravens",
+        "teamColor": "#241773",
+        "teamColorAlt": "#9e7c0c",
+        "position": "QB",
+        "number": 8,
+        "height": "6 ft 2 in",
+        "weight": "98 kg",
+        "dob": "1997-01-07",
+        "experience_years": 7,
+        "initials": "LJ",
+        "status": "fire",
+        "priceChange": "+4.7%",
+        "priceLabel": "21D Historical Avg",
+        "cardGrade": "A+",
+        "overallScore": 96,
+        "featuredCard": "2018 Panini Prizm Rookie PSA 10",
+        "lastGame": "OCT 5, 2025 · 2 TD · 3 Rush TD · 245 YDS"
+    },
+    "career_summary": {
+        "games_played": 100,
+        "wins": 74,
+        "losses": 26,
+        "passing_yards": 22600,
+        "passing_touchdowns": 190,
+        "interceptions": 58,
+        "completion_percentage": 65.1,
+        "passer_rating": 102.6,
+        "rushing_yards": 6700,
+        "rushing_touchdowns": 57,
+        "super_bowls_won": 0,
+        "mvps": 2,
+        "super_bowl_mvps": 0
+    },
+    "season_stats": [
+        {
+            "year": 2018,
+            "games": 16,
+            "passing_yards": 1201,
+            "td": 6,
+            "int": 3,
+            "completion_pct": 58.2,
+            "rating": 84.5,
+            "rush_yards": 695,
+            "rush_td": 5
+        },
+        {
+            "year": 2019,
+            "games": 15,
+            "passing_yards": 3127,
+            "td": 36,
+            "int": 6,
+            "completion_pct": 66.1,
+            "rating": 113.3,
+            "rush_yards": 1206,
+            "rush_td": 7,
+            "mvp": true
+        },
+        {
+            "year": 2020,
+            "games": 15,
+            "passing_yards": 2757,
+            "td": 26,
+            "int": 9,
+            "completion_pct": 64.4,
+            "rating": 99.3,
+            "rush_yards": 1005,
+            "rush_td": 7
+        },
+        {
+            "year": 2021,
+            "games": 12,
+            "passing_yards": 2882,
+            "td": 16,
+            "int": 13,
+            "completion_pct": 64.4,
+            "rating": 87.0,
+            "rush_yards": 767,
+            "rush_td": 2
+        },
+        {
+            "year": 2022,
+            "games": 12,
+            "passing_yards": 2242,
+            "td": 17,
+            "int": 7,
+            "completion_pct": 62.3,
+            "rating": 93.0,
+            "rush_yards": 764,
+            "rush_td": 3
+        },
+        {
+            "year": 2023,
+            "games": 16,
+            "passing_yards": 3678,
+            "td": 24,
+            "int": 7,
+            "completion_pct": 67.2,
+            "rating": 102.7,
+            "rush_yards": 821,
+            "rush_td": 5,
+            "mvp": true
+        },
+        {
+            "year": 2024,
+            "games": 17,
+            "passing_yards": 4172,
+            "td": 41,
+            "int": 4,
+            "completion_pct": 68.1,
+            "rating": 119.6,
+            "rush_yards": 915,
+            "rush_td": 4
+        },
+        {
+            "year": 2025,
+            "games": 17,
+            "passing_yards": 4541,
+            "td": 24,
+            "int": 9,
+            "completion_pct": 66.5,
+            "rating": 100.2,
+            "rush_yards": 927,
+            "rush_td": 10
+        }
+    ],
+    "advanced_metrics": {
+        "avg_yards_per_game": 260,
+        "td_int_ratio": 3.28,
+        "yards_per_attempt": 8.2,
+        "qbr_estimate": 76,
+        "clutch_rating": 90,
+        "playoff_win_rate": 0.55
+    },
+    "radar": [
+        {
+            "subject": "Accuracy",
+            "A": 88
+        },
+        {
+            "subject": "Arm Strength",
+            "A": 89
+        },
+        {
+            "subject": "Clutch",
+            "A": 90
+        },
+        {
+            "subject": "Mobility",
+            "A": 99
+        },
+        {
+            "subject": "Football IQ",
+            "A": 91
+        },
+        {
+            "subject": "Leadership",
+            "A": 93
+        }
+    ],
+    "awards": [
+        {
+            "year": 2019,
+            "award": "NFL MVP (Unanimous)",
+            "icon": "🏆"
+        },
+        {
+            "year": 2023,
+            "award": "NFL MVP",
+            "icon": "🏆"
+        },
+        {
+            "year": 2024,
+            "award": "Pro Bowl",
+            "icon": "⭐"
+        }
+    ],
+    "analytics_flags": {
+        "is_elite_qb": true,
+        "is_clutch_player": true,
+        "is_dynasty_player": true,
+        "injury_risk": "medium",
+        "consistency_score": 86
+    },
+    "news_feed": [
+        {
+            "id": "l1",
+            "ts": "2025-02-24T17:00:00Z",
+            "type": "signal",
+            "title": "Volume Surge",
+            "body": "Jackson 2018 Prizm RPA volume up 28% — collectors chasing the 2× MVP narrative.",
+            "tag": "ON FIRE"
+        },
+        {
+            "id": "l2",
+            "ts": "2025-02-24T09:15:00Z",
+            "type": "game",
+            "title": "Dual-Threat Masterclass",
+            "body": "245 pass yards + 3 rush TDs vs CLE. Another week cementing GOAT dual-threat status.",
+            "tag": null
+        },
+        {
+            "id": "l3",
+            "ts": "2025-02-23T13:30:00Z",
+            "type": "price",
+            "title": "RPA Auction Result",
+            "body": "2018 Prizm RPA BGS 9.5 sold for $8,400 — 18% above last comp.",
+            "tag": "NEW HIGH"
+        },
+        {
+            "id": "l4",
+            "ts": "2025-02-22T11:00:00Z",
+            "type": "insight",
+            "title": "Card Market Analysis",
+            "body": "Jackson slabs at 14-month high. Suggests smart money accumulating ahead of playoffs.",
+            "tag": "BUY SIGNAL"
+        }
+    ]
+}

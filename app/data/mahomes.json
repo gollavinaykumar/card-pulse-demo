@@ -1,0 +1,244 @@
+{
+    "player": {
+        "id": "patrick_mahomes",
+        "slug": "mahomes",
+        "name": "Patrick Mahomes",
+        "team": "Kansas City Chiefs",
+        "teamColor": "#c0181d",
+        "teamColorAlt": "#ffb81c",
+        "position": "QB",
+        "number": 15,
+        "height": "6 ft 2 in",
+        "weight": "102 kg",
+        "dob": "1995-09-17",
+        "experience_years": 8,
+        "initials": "PM",
+        "status": "heating",
+        "priceChange": "+10.2%",
+        "priceLabel": "21D Historical Avg",
+        "cardGrade": "S+",
+        "overallScore": 95,
+        "featuredCard": "2017 Panini Prizm Rookie PSA 9",
+        "lastGame": "SEP 18, 2025 · 3 TD · 284 YDS"
+    },
+    "career_summary": {
+        "games_played": 112,
+        "wins": 89,
+        "losses": 23,
+        "passing_yards": 32000,
+        "passing_touchdowns": 260,
+        "interceptions": 65,
+        "completion_percentage": 66.5,
+        "passer_rating": 102.1,
+        "rushing_yards": 1900,
+        "rushing_touchdowns": 12,
+        "super_bowls_won": 3,
+        "mvps": 2,
+        "super_bowl_mvps": 3
+    },
+    "season_stats": [
+        {
+            "year": 2018,
+            "games": 16,
+            "passing_yards": 5097,
+            "td": 50,
+            "int": 12,
+            "completion_pct": 66.0,
+            "rating": 113.8,
+            "rush_yards": 272,
+            "rush_td": 2,
+            "mvp": true
+        },
+        {
+            "year": 2019,
+            "games": 14,
+            "passing_yards": 4031,
+            "td": 26,
+            "int": 5,
+            "completion_pct": 65.9,
+            "rating": 105.3,
+            "rush_yards": 218,
+            "rush_td": 2,
+            "super_bowl_win": true
+        },
+        {
+            "year": 2020,
+            "games": 15,
+            "passing_yards": 4740,
+            "td": 38,
+            "int": 6,
+            "completion_pct": 66.3,
+            "rating": 108.2,
+            "rush_yards": 308,
+            "rush_td": 2
+        },
+        {
+            "year": 2021,
+            "games": 17,
+            "passing_yards": 4839,
+            "td": 37,
+            "int": 13,
+            "completion_pct": 66.3,
+            "rating": 98.5,
+            "rush_yards": 381,
+            "rush_td": 2
+        },
+        {
+            "year": 2022,
+            "games": 17,
+            "passing_yards": 5250,
+            "td": 41,
+            "int": 12,
+            "completion_pct": 67.1,
+            "rating": 105.2,
+            "rush_yards": 358,
+            "rush_td": 4,
+            "mvp": true,
+            "super_bowl_win": true
+        },
+        {
+            "year": 2023,
+            "games": 16,
+            "passing_yards": 4183,
+            "td": 27,
+            "int": 14,
+            "completion_pct": 67.2,
+            "rating": 92.6,
+            "rush_yards": 389,
+            "rush_td": 0,
+            "super_bowl_win": true
+        },
+        {
+            "year": 2024,
+            "games": 17,
+            "passing_yards": 4315,
+            "td": 31,
+            "int": 11,
+            "completion_pct": 68.3,
+            "rating": 98.7,
+            "rush_yards": 350,
+            "rush_td": 3
+        },
+        {
+            "year": 2025,
+            "games": 17,
+            "passing_yards": 4500,
+            "td": 35,
+            "int": 11,
+            "completion_pct": 69.0,
+            "rating": 101.5,
+            "rush_yards": 370,
+            "rush_td": 3
+        }
+    ],
+    "advanced_metrics": {
+        "avg_yards_per_game": 285,
+        "td_int_ratio": 4.0,
+        "yards_per_attempt": 8.3,
+        "qbr_estimate": 78,
+        "clutch_rating": 95,
+        "playoff_win_rate": 0.75
+    },
+    "radar": [
+        {
+            "subject": "Accuracy",
+            "A": 90
+        },
+        {
+            "subject": "Arm Strength",
+            "A": 95
+        },
+        {
+            "subject": "Clutch",
+            "A": 98
+        },
+        {
+            "subject": "Mobility",
+            "A": 85
+        },
+        {
+            "subject": "Football IQ",
+            "A": 92
+        },
+        {
+            "subject": "Leadership",
+            "A": 97
+        }
+    ],
+    "awards": [
+        {
+            "year": 2018,
+            "award": "NFL MVP",
+            "icon": "🏆"
+        },
+        {
+            "year": 2019,
+            "award": "Super Bowl MVP",
+            "icon": "💍"
+        },
+        {
+            "year": 2022,
+            "award": "NFL MVP",
+            "icon": "🏆"
+        },
+        {
+            "year": 2022,
+            "award": "Super Bowl MVP",
+            "icon": "💍"
+        },
+        {
+            "year": 2023,
+            "award": "Super Bowl MVP",
+            "icon": "💍"
+        }
+    ],
+    "analytics_flags": {
+        "is_elite_qb": true,
+        "is_clutch_player": true,
+        "is_dynasty_player": true,
+        "injury_risk": "low",
+        "consistency_score": 92
+    },
+    "news_feed": [
+        {
+            "id": "m1",
+            "ts": "2025-02-24T19:15:00Z",
+            "type": "signal",
+            "title": "Slab Momentum Surging",
+            "body": "Mahomes 2017 Prizm RC volume up 42% — market reacting to 3-peat narrative.",
+            "tag": "HEATING UP"
+        },
+        {
+            "id": "m2",
+            "ts": "2025-02-24T12:00:00Z",
+            "type": "price",
+            "title": "New Price Floor",
+            "body": "2017 Prizm RC PSA 9 now holding firm above $12,500 — sellers drying up.",
+            "tag": "NEW HIGH"
+        },
+        {
+            "id": "m3",
+            "ts": "2025-02-23T21:30:00Z",
+            "type": "game",
+            "title": "Week 8 Domination",
+            "body": "284 passing yards, 3 TDs, 0 INTs vs LV. Season passer rating climbs to 101.5.",
+            "tag": null
+        },
+        {
+            "id": "m4",
+            "ts": "2025-02-23T08:00:00Z",
+            "type": "insight",
+            "title": "Dynasty Status Confirmed",
+            "body": "CardPulse AI rates Mahomes as the #1 long-term QB slab hold across all formats.",
+            "tag": "ELITE HOLD"
+        },
+        {
+            "id": "m5",
+            "ts": "2025-02-22T15:45:00Z",
+            "type": "price",
+            "title": "Auction Alert",
+            "body": "2017 Prizm Gold /10 PSA 10 sold for $185,000 at Heritage. Record for modern football.",
+            "tag": "RECORD"
+        }
+    ]
+}

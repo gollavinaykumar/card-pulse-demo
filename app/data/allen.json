@@ -1,0 +1,221 @@
+{
+    "player": {
+        "id": "josh_allen",
+        "slug": "allen",
+        "name": "Josh Allen",
+        "team": "Buffalo Bills",
+        "teamColor": "#00338d",
+        "teamColorAlt": "#c60c30",
+        "position": "QB",
+        "number": 17,
+        "height": "6 ft 5 in",
+        "weight": "108 kg",
+        "dob": "1996-05-21",
+        "experience_years": 7,
+        "initials": "JA",
+        "status": "fire",
+        "priceChange": "+6.8%",
+        "priceLabel": "21D Historical Avg",
+        "cardGrade": "A+",
+        "overallScore": 93,
+        "featuredCard": "2018 Donruss Optic Rookie PSA 10",
+        "lastGame": "OCT 2, 2025 · 4 TD · 315 YDS"
+    },
+    "career_summary": {
+        "games_played": 105,
+        "wins": 72,
+        "losses": 33,
+        "passing_yards": 27450,
+        "passing_touchdowns": 228,
+        "interceptions": 72,
+        "completion_percentage": 63.7,
+        "passer_rating": 98.4,
+        "rushing_yards": 4782,
+        "rushing_touchdowns": 41,
+        "super_bowls_won": 0,
+        "mvps": 1,
+        "super_bowl_mvps": 0
+    },
+    "season_stats": [
+        {
+            "year": 2018,
+            "games": 12,
+            "passing_yards": 2074,
+            "td": 10,
+            "int": 12,
+            "completion_pct": 52.8,
+            "rating": 67.9,
+            "rush_yards": 631,
+            "rush_td": 8
+        },
+        {
+            "year": 2019,
+            "games": 16,
+            "passing_yards": 3089,
+            "td": 20,
+            "int": 9,
+            "completion_pct": 58.8,
+            "rating": 85.3,
+            "rush_yards": 510,
+            "rush_td": 9
+        },
+        {
+            "year": 2020,
+            "games": 16,
+            "passing_yards": 4544,
+            "td": 37,
+            "int": 10,
+            "completion_pct": 69.2,
+            "rating": 107.2,
+            "rush_yards": 421,
+            "rush_td": 8
+        },
+        {
+            "year": 2021,
+            "games": 17,
+            "passing_yards": 4407,
+            "td": 36,
+            "int": 15,
+            "completion_pct": 63.3,
+            "rating": 94.6,
+            "rush_yards": 763,
+            "rush_td": 6
+        },
+        {
+            "year": 2022,
+            "games": 17,
+            "passing_yards": 4283,
+            "td": 35,
+            "int": 14,
+            "completion_pct": 63.3,
+            "rating": 96.6,
+            "rush_yards": 762,
+            "rush_td": 7
+        },
+        {
+            "year": 2023,
+            "games": 16,
+            "passing_yards": 4306,
+            "td": 29,
+            "int": 18,
+            "completion_pct": 63.1,
+            "rating": 88.3,
+            "rush_yards": 524,
+            "rush_td": 15
+        },
+        {
+            "year": 2024,
+            "games": 17,
+            "passing_yards": 4280,
+            "td": 32,
+            "int": 8,
+            "completion_pct": 65.4,
+            "rating": 101.5,
+            "rush_yards": 531,
+            "rush_td": 12
+        },
+        {
+            "year": 2025,
+            "games": 17,
+            "passing_yards": 4467,
+            "td": 29,
+            "int": 6,
+            "completion_pct": 66.0,
+            "rating": 103.2,
+            "rush_yards": 640,
+            "rush_td": 9
+        }
+    ],
+    "advanced_metrics": {
+        "avg_yards_per_game": 261,
+        "td_int_ratio": 3.17,
+        "yards_per_attempt": 7.8,
+        "qbr_estimate": 71,
+        "clutch_rating": 88,
+        "playoff_win_rate": 0.60
+    },
+    "radar": [
+        {
+            "subject": "Accuracy",
+            "A": 83
+        },
+        {
+            "subject": "Arm Strength",
+            "A": 99
+        },
+        {
+            "subject": "Clutch",
+            "A": 88
+        },
+        {
+            "subject": "Mobility",
+            "A": 96
+        },
+        {
+            "subject": "Football IQ",
+            "A": 86
+        },
+        {
+            "subject": "Leadership",
+            "A": 92
+        }
+    ],
+    "awards": [
+        {
+            "year": 2020,
+            "award": "Pro Bowl",
+            "icon": "⭐"
+        },
+        {
+            "year": 2022,
+            "award": "AFC MVP",
+            "icon": "🏆"
+        },
+        {
+            "year": 2024,
+            "award": "Pro Bowl",
+            "icon": "⭐"
+        }
+    ],
+    "analytics_flags": {
+        "is_elite_qb": true,
+        "is_clutch_player": true,
+        "is_dynasty_player": true,
+        "injury_risk": "low",
+        "consistency_score": 88
+    },
+    "news_feed": [
+        {
+            "id": "a1",
+            "ts": "2025-02-24T16:42:00Z",
+            "type": "signal",
+            "title": "Signal Spike Detected",
+            "body": "Allen slab volume up 34% in past 6 hours after trade rumors surface.",
+            "tag": "ON FIRE"
+        },
+        {
+            "id": "a2",
+            "ts": "2025-02-24T11:10:00Z",
+            "type": "price",
+            "title": "Price Breakout",
+            "body": "2018 Donruss Optic RC PSA 10 crossed $1,850 — new 90-day high.",
+            "tag": "NEW HIGH"
+        },
+        {
+            "id": "a3",
+            "ts": "2025-02-23T20:00:00Z",
+            "type": "game",
+            "title": "Week 8 Performance",
+            "body": "315 passing yards, 4 TDs, 0 INTs vs MIA. CardPulse score: 98/100.",
+            "tag": null
+        },
+        {
+            "id": "a4",
+            "ts": "2025-02-22T09:00:00Z",
+            "type": "insight",
+            "title": "Market Insight",
+            "body": "Analyst consensus: Allen cards in BGS 9.5 undervalued vs PSA 10 counterparts.",
+            "tag": "BUY SIGNAL"
+        }
+    ]
+}

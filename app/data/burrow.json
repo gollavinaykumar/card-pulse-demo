@@ -1,0 +1,201 @@
+{
+    "player": {
+        "id": "joe_burrow",
+        "slug": "burrow",
+        "name": "Joe Burrow",
+        "team": "Cincinnati Bengals",
+        "teamColor": "#fb4f14",
+        "teamColorAlt": "#000000",
+        "position": "QB",
+        "number": 9,
+        "height": "6 ft 4 in",
+        "weight": "100 kg",
+        "dob": "1996-12-10",
+        "experience_years": 5,
+        "initials": "JB",
+        "status": "fire",
+        "priceChange": "+5.3%",
+        "priceLabel": "21D Historical Avg",
+        "cardGrade": "A",
+        "overallScore": 91,
+        "featuredCard": "2020 Panini Prizm Rookie PSA 10",
+        "lastGame": "SEP 28, 2025 · 3 TD · 298 YDS"
+    },
+    "career_summary": {
+        "games_played": 71,
+        "wins": 43,
+        "losses": 28,
+        "passing_yards": 19800,
+        "passing_touchdowns": 158,
+        "interceptions": 43,
+        "completion_percentage": 68.2,
+        "passer_rating": 103.8,
+        "rushing_yards": 520,
+        "rushing_touchdowns": 8,
+        "super_bowls_won": 0,
+        "mvps": 0,
+        "super_bowl_mvps": 0
+    },
+    "season_stats": [
+        {
+            "year": 2020,
+            "games": 10,
+            "passing_yards": 2688,
+            "td": 13,
+            "int": 5,
+            "completion_pct": 65.3,
+            "rating": 92.3,
+            "rush_yards": 142,
+            "rush_td": 3
+        },
+        {
+            "year": 2021,
+            "games": 16,
+            "passing_yards": 4611,
+            "td": 34,
+            "int": 14,
+            "completion_pct": 70.4,
+            "rating": 108.3,
+            "rush_yards": 118,
+            "rush_td": 2,
+            "super_bowl_appearance": true
+        },
+        {
+            "year": 2022,
+            "games": 16,
+            "passing_yards": 4475,
+            "td": 35,
+            "int": 12,
+            "completion_pct": 68.3,
+            "rating": 103.4,
+            "rush_yards": 92,
+            "rush_td": 1
+        },
+        {
+            "year": 2023,
+            "games": 6,
+            "passing_yards": 1166,
+            "td": 7,
+            "int": 2,
+            "completion_pct": 66.7,
+            "rating": 99.3,
+            "rush_yards": 35,
+            "rush_td": 0,
+            "injury": true
+        },
+        {
+            "year": 2024,
+            "games": 17,
+            "passing_yards": 4918,
+            "td": 43,
+            "int": 8,
+            "completion_pct": 70.1,
+            "rating": 114.6,
+            "rush_yards": 110,
+            "rush_td": 2
+        },
+        {
+            "year": 2025,
+            "games": 17,
+            "passing_yards": 4942,
+            "td": 26,
+            "int": 2,
+            "completion_pct": 71.0,
+            "rating": 105.7,
+            "rush_yards": 133,
+            "rush_td": 0
+        }
+    ],
+    "advanced_metrics": {
+        "avg_yards_per_game": 279,
+        "td_int_ratio": 3.67,
+        "yards_per_attempt": 8.0,
+        "qbr_estimate": 73,
+        "clutch_rating": 87,
+        "playoff_win_rate": 0.58
+    },
+    "radar": [
+        {
+            "subject": "Accuracy",
+            "A": 91
+        },
+        {
+            "subject": "Arm Strength",
+            "A": 87
+        },
+        {
+            "subject": "Clutch",
+            "A": 89
+        },
+        {
+            "subject": "Mobility",
+            "A": 70
+        },
+        {
+            "subject": "Football IQ",
+            "A": 94
+        },
+        {
+            "subject": "Leadership",
+            "A": 90
+        }
+    ],
+    "awards": [
+        {
+            "year": 2021,
+            "award": "Comeback Player of the Year",
+            "icon": "💪"
+        },
+        {
+            "year": 2021,
+            "award": "Super Bowl Appearance",
+            "icon": "🏈"
+        },
+        {
+            "year": 2024,
+            "award": "Pro Bowl",
+            "icon": "⭐"
+        }
+    ],
+    "analytics_flags": {
+        "is_elite_qb": true,
+        "is_clutch_player": true,
+        "is_dynasty_player": true,
+        "injury_risk": "medium",
+        "consistency_score": 85
+    },
+    "news_feed": [
+        {
+            "id": "b1",
+            "ts": "2025-02-24T15:30:00Z",
+            "type": "signal",
+            "title": "Momentum Building",
+            "body": "Burrow 2020 Prizm RC holding strong above $2,100 — 3rd straight week.",
+            "tag": "ON FIRE"
+        },
+        {
+            "id": "b2",
+            "ts": "2025-02-24T08:45:00Z",
+            "type": "game",
+            "title": "Week 7 Performance",
+            "body": "298 passing yards, 3 TDs, 0 INTs vs PIT. Season-high passer rating 131.4.",
+            "tag": null
+        },
+        {
+            "id": "b3",
+            "ts": "2025-02-23T14:00:00Z",
+            "type": "insight",
+            "title": "Injury Recovery Update",
+            "body": "Burrow cleared for full practice — wrist concerns officially resolved.",
+            "tag": "CLEARED"
+        },
+        {
+            "id": "b4",
+            "ts": "2025-02-22T10:30:00Z",
+            "type": "price",
+            "title": "PSA 10 Premium",
+            "body": "Grade gap widening: PSA 10 now commands 2.4× premium over PSA 9 for 2020 rookie.",
+            "tag": null
+        }
+    ]
+}

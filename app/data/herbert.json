@@ -1,0 +1,196 @@
+{
+    "player": {
+        "id": "justin_herbert",
+        "slug": "herbert",
+        "name": "Justin Herbert",
+        "team": "LA Chargers",
+        "teamColor": "#002a5e",
+        "teamColorAlt": "#ffc20e",
+        "position": "QB",
+        "number": 10,
+        "height": "6 ft 6 in",
+        "weight": "107 kg",
+        "dob": "1998-03-10",
+        "experience_years": 5,
+        "initials": "JH",
+        "status": "cooling",
+        "priceChange": "-2.1%",
+        "priceLabel": "21D Historical Avg",
+        "cardGrade": "B+",
+        "overallScore": 87,
+        "featuredCard": "2020 Panini Prizm Rookie PSA 10",
+        "lastGame": "OCT 1, 2025 · 2 TD · 1 INT · 248 YDS"
+    },
+    "career_summary": {
+        "games_played": 78,
+        "wins": 39,
+        "losses": 39,
+        "passing_yards": 22840,
+        "passing_touchdowns": 163,
+        "interceptions": 52,
+        "completion_percentage": 66.7,
+        "passer_rating": 97.9,
+        "rushing_yards": 880,
+        "rushing_touchdowns": 8,
+        "super_bowls_won": 0,
+        "mvps": 0,
+        "super_bowl_mvps": 0
+    },
+    "season_stats": [
+        {
+            "year": 2020,
+            "games": 15,
+            "passing_yards": 4336,
+            "td": 31,
+            "int": 10,
+            "completion_pct": 66.6,
+            "rating": 98.3,
+            "rush_yards": 234,
+            "rush_td": 5,
+            "rookie_oty": true
+        },
+        {
+            "year": 2021,
+            "games": 17,
+            "passing_yards": 5014,
+            "td": 38,
+            "int": 15,
+            "completion_pct": 65.9,
+            "rating": 102.1,
+            "rush_yards": 302,
+            "rush_td": 3
+        },
+        {
+            "year": 2022,
+            "games": 17,
+            "passing_yards": 4739,
+            "td": 25,
+            "int": 10,
+            "completion_pct": 68.3,
+            "rating": 97.5,
+            "rush_yards": 147,
+            "rush_td": 0
+        },
+        {
+            "year": 2023,
+            "games": 17,
+            "passing_yards": 3134,
+            "td": 20,
+            "int": 7,
+            "completion_pct": 66.7,
+            "rating": 93.5,
+            "rush_yards": 79,
+            "rush_td": 0,
+            "injury": true
+        },
+        {
+            "year": 2024,
+            "games": 17,
+            "passing_yards": 4989,
+            "td": 27,
+            "int": 10,
+            "completion_pct": 66.0,
+            "rating": 98.5,
+            "rush_yards": 118,
+            "rush_td": 0
+        },
+        {
+            "year": 2025,
+            "games": 17,
+            "passing_yards": 4628,
+            "td": 22,
+            "int": 10,
+            "completion_pct": 67.0,
+            "rating": 96.2,
+            "rush_yards": 100,
+            "rush_td": 0
+        }
+    ],
+    "advanced_metrics": {
+        "avg_yards_per_game": 293,
+        "td_int_ratio": 3.13,
+        "yards_per_attempt": 7.5,
+        "qbr_estimate": 65,
+        "clutch_rating": 78,
+        "playoff_win_rate": 0.40
+    },
+    "radar": [
+        {
+            "subject": "Accuracy",
+            "A": 87
+        },
+        {
+            "subject": "Arm Strength",
+            "A": 92
+        },
+        {
+            "subject": "Clutch",
+            "A": 75
+        },
+        {
+            "subject": "Mobility",
+            "A": 68
+        },
+        {
+            "subject": "Football IQ",
+            "A": 88
+        },
+        {
+            "subject": "Leadership",
+            "A": 82
+        }
+    ],
+    "awards": [
+        {
+            "year": 2020,
+            "award": "Offensive Rookie of the Year",
+            "icon": "🌟"
+        },
+        {
+            "year": 2021,
+            "award": "Pro Bowl",
+            "icon": "⭐"
+        }
+    ],
+    "analytics_flags": {
+        "is_elite_qb": false,
+        "is_clutch_player": false,
+        "is_dynasty_player": true,
+        "injury_risk": "medium",
+        "consistency_score": 79
+    },
+    "news_feed": [
+        {
+            "id": "h1",
+            "ts": "2025-02-24T14:00:00Z",
+            "type": "signal",
+            "title": "Cooling Signal",
+            "body": "Herbert slab volume declining 3rd consecutive week — market taking a wait-and-see stance.",
+            "tag": "COOLING"
+        },
+        {
+            "id": "h2",
+            "ts": "2025-02-24T07:30:00Z",
+            "type": "game",
+            "title": "Week 7 Result",
+            "body": "248 yards, 2 TDs, 1 INT vs DEN. Chargers fall 3rd time in 4 games.",
+            "tag": null
+        },
+        {
+            "id": "h3",
+            "ts": "2025-02-23T16:00:00Z",
+            "type": "price",
+            "title": "Price Pullback",
+            "body": "2020 Prizm RC PSA 10 dipped to $980 — 8% below 60-day moving average.",
+            "tag": "WATCH"
+        },
+        {
+            "id": "h4",
+            "ts": "2025-02-22T08:00:00Z",
+            "type": "insight",
+            "title": "Hold or Sell?",
+            "body": "Analysts split: long-term holder case remains; short-term catalysts lacking without playoff run.",
+            "tag": null
+        }
+    ]
+}

@@ -1,0 +1,162 @@
+{
+    "player": {
+        "id": "cj_stroud",
+        "slug": "stroud",
+        "name": "C.J. Stroud",
+        "team": "Houston Texans",
+        "teamColor": "#03202f",
+        "teamColorAlt": "#a71930",
+        "position": "QB",
+        "number": 7,
+        "height": "6 ft 3 in",
+        "weight": "99 kg",
+        "dob": "2001-10-03",
+        "experience_years": 2,
+        "initials": "CJ",
+        "status": "heating",
+        "priceChange": "+8.4%",
+        "priceLabel": "21D Historical Avg",
+        "cardGrade": "B+",
+        "overallScore": 83,
+        "featuredCard": "2023 Panini Prizm Rookie PSA 10",
+        "lastGame": "OCT 3, 2025 · 3 TD · 2 Rush TD · 271 YDS"
+    },
+    "career_summary": {
+        "games_played": 33,
+        "wins": 20,
+        "losses": 13,
+        "passing_yards": 8940,
+        "passing_touchdowns": 57,
+        "interceptions": 18,
+        "completion_percentage": 65.0,
+        "passer_rating": 99.2,
+        "rushing_yards": 260,
+        "rushing_touchdowns": 4,
+        "super_bowls_won": 0,
+        "mvps": 0,
+        "super_bowl_mvps": 0
+    },
+    "season_stats": [
+        {
+            "year": 2023,
+            "games": 16,
+            "passing_yards": 4108,
+            "td": 23,
+            "int": 5,
+            "completion_pct": 63.9,
+            "rating": 100.5,
+            "rush_yards": 167,
+            "rush_td": 3,
+            "rookie_oty": true
+        },
+        {
+            "year": 2024,
+            "games": 17,
+            "passing_yards": 4832,
+            "td": 34,
+            "int": 13,
+            "completion_pct": 66.1,
+            "rating": 98.0,
+            "rush_yards": 93,
+            "rush_td": 1
+        },
+        {
+            "year": 2025,
+            "games": 17,
+            "passing_yards": 5231,
+            "td": 35,
+            "int": 11,
+            "completion_pct": 66.5,
+            "rating": 104.7,
+            "rush_yards": 145,
+            "rush_td": 2
+        }
+    ],
+    "advanced_metrics": {
+        "avg_yards_per_game": 271,
+        "td_int_ratio": 3.17,
+        "yards_per_attempt": 8.1,
+        "qbr_estimate": 68,
+        "clutch_rating": 82,
+        "playoff_win_rate": 0.50
+    },
+    "radar": [
+        {
+            "subject": "Accuracy",
+            "A": 85
+        },
+        {
+            "subject": "Arm Strength",
+            "A": 88
+        },
+        {
+            "subject": "Clutch",
+            "A": 82
+        },
+        {
+            "subject": "Mobility",
+            "A": 72
+        },
+        {
+            "subject": "Football IQ",
+            "A": 90
+        },
+        {
+            "subject": "Leadership",
+            "A": 85
+        }
+    ],
+    "awards": [
+        {
+            "year": 2023,
+            "award": "Offensive Rookie of the Year",
+            "icon": "🌟"
+        },
+        {
+            "year": 2024,
+            "award": "Pro Bowl",
+            "icon": "⭐"
+        }
+    ],
+    "analytics_flags": {
+        "is_elite_qb": false,
+        "is_clutch_player": true,
+        "is_dynasty_player": true,
+        "injury_risk": "low",
+        "consistency_score": 82
+    },
+    "news_feed": [
+        {
+            "id": "s1",
+            "ts": "2025-02-24T18:00:00Z",
+            "type": "signal",
+            "title": "Heating Up Fast",
+            "body": "Stroud 2023 Prizm RC gaining 8.4% in 3 weeks — breakout narrative accelerating.",
+            "tag": "HEATING UP"
+        },
+        {
+            "id": "s2",
+            "ts": "2025-02-24T10:00:00Z",
+            "type": "game",
+            "title": "Season-Best Performance",
+            "body": "271 yards, 3 passing + 2 rushing TDs vs IND. CardPulse score: 95/100.",
+            "tag": "STANDOUT"
+        },
+        {
+            "id": "s3",
+            "ts": "2025-02-23T18:00:00Z",
+            "type": "price",
+            "title": "RC Auction Watch",
+            "body": "2023 Prizm RC PSA 10 last sold $890 — projected to cross $1,000 within 30 days.",
+            "tag": "WATCH"
+        },
+        {
+            "id": "s4",
+            "ts": "2025-02-22T12:00:00Z",
+            "type": "insight",
+            "title": "Dynasty Investment",
+            "body": "At 24 yrs old, Stroud is the youngest QB on CardPulse heating list — rare long runway.",
+            "tag": "BUY SIGNAL"
+        }
+    ]
+}
