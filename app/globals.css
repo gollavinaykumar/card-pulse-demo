@@ -626,7 +626,7 @@
   width: 7px;
   height: 7px;
   border-radius: 99px;
-  background: #dc2626;
+  background: green;
   box-shadow: 0 0 8px rgba(220, 38, 38, 0.7);
   animation: flicker 1.5s ease-in-out infinite;
 }

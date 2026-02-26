@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, ScatterChart, Scatter, ZAxis,
+  Tooltip, ScatterChart, Scatter, ZAxis, LineChart,
   ComposedChart, Bar, Line, Cell,
 } from "recharts";
 import {
@@ -111,9 +111,9 @@ export default function HomePage() {
   useEffect(() => {
     if (step === "select" && selected.size === 3) {
       const timer = setTimeout(() => {
-        setActivePlayer(Array.from(selected)[0]);
+        setActivePlayer("all");
         setStep("analytics");
-      }, 600); // short delay for visual feedback
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [selected, step]);
@@ -123,7 +123,7 @@ export default function HomePage() {
   // ═══════════════════════════════════════════════════════════════
   if (step === "theme") {
     return (
-      <div style={{ minHeight: "100vh", background: "#050505", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#050505", backgroundImage: "none", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
           <div style={{ position: "absolute", left: "20%", top: "30%", width: 500, height: 500, background: "radial-gradient(circle, rgba(220,38,38,0.06) 0%, transparent 60%)" }} />
           <div style={{ position: "absolute", right: "20%", top: "30%", width: 500, height: 500, background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 60%)" }} />
@@ -167,7 +167,7 @@ export default function HomePage() {
   // ═══════════════════════════════════════════════════════════════
   if (step === "select") {
     return (
-      <div style={{ minHeight: "100vh", background: "#050505", padding: "40px 20px", backgroundImage: t.vignette }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#050505", backgroundImage: t.vignette, padding: "40px 20px" }}>
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
           <div style={{ position: "absolute", left: "10%", top: "20%", width: 600, height: 600, background: `radial-gradient(circle, ${A}0d 0%, transparent 60%)` }} />
           <div style={{ position: "absolute", right: "10%", bottom: "20%", width: 500, height: 500, background: `radial-gradient(circle, ${A}0a 0%, transparent 60%)` }} />
@@ -270,22 +270,73 @@ export default function HomePage() {
   // ═══════════════════════════════════════════════════════════════
   // STEP 3: ANALYTICS — FULL WWE/AMBER STYLE DASHBOARD
   // ═══════════════════════════════════════════════════════════════
-  const ap = getPlayer(activePlayer)!;
+  const isAllMode = activePlayer === "all";
+  const PCOLORS = [A, AB, "#8b5cf6"];
+
+  // Per-player data
+  const allPriceHistories = selectedPlayers.map((pd, i) => ({
+    slug: pd.player.slug, name: pd.player.name, color: PCOLORS[i],
+    history: generatePriceHistory(PLAYER_PRICES[pd.player.slug] ?? 5000, pd.player.slug.length * 0.3),
+  }));
+
+  // Merged multi-line chart data
+  const mergedPrices = allPriceHistories[0].history.map((_, di) => {
+    const obj: Record<string, string | number> = { day: allPriceHistories[0].history[di].day };
+    allPriceHistories.forEach(ph => {
+      const pt = ph.history[di];
+      obj[ph.name] = pt.price;
+      obj[ph.name + "_vol"] = pt.volume;
+    });
+    return obj;
+  });
+  const displayMerged = priceRange === "7d" ? mergedPrices.slice(-7) : mergedPrices;
+
+  // Single player fallback
+  const ap = isAllMode ? selectedPlayers[0] : getPlayer(activePlayer)!;
   const p = ap.player;
-  const cardImage = CARDS.find(c => c.slug === activePlayer)!.image;
-  const priceHistory = generatePriceHistory(PLAYER_PRICES[activePlayer] ?? 5000, activePlayer.length * 0.3);
-  const displayPrices = priceRange === "7d" ? priceHistory.slice(-7) : priceHistory;
-  const salesScatter = generateScatter(PLAYER_PRICES[activePlayer] ?? 5000);
-  const lastPrice = priceHistory[priceHistory.length - 1].price;
-  const totalVol = priceHistory.reduce((acc, b) => acc + b.volume, 0);
+  const cardImage = CARDS.find(c => c.slug === (isAllMode ? selectedPlayers[0].player.slug : activePlayer))!.image;
+  const singleHistory = isAllMode ? allPriceHistories[0].history : generatePriceHistory(PLAYER_PRICES[activePlayer] ?? 5000, activePlayer.length * 0.3);
+  const displayPrices = priceRange === "7d" ? singleHistory.slice(-7) : singleHistory;
+  const salesScatter = generateScatter(PLAYER_PRICES[isAllMode ? selectedPlayers[0].player.slug : activePlayer] ?? 5000);
+  const lastPrice = singleHistory[singleHistory.length - 1].price;
+  const totalVol = singleHistory.reduce((acc, b) => acc + b.volume, 0);
   const gradeColors = [A, AB, "#6b7280", "#4b5563", "#374151"];
 
-  const dashKpis = [
+  const dashKpis = isAllMode ? [
+    { label: "ROSTER SIZE", value: "3", sub: "Selected Players", icon: Signal, color: A, delta: "+3" },
+    { label: "AVG SCORE", value: String(Math.round(selectedPlayers.reduce((s, pd) => s + pd.player.overallScore, 0) / 3)), sub: "Overall Average", icon: BarChart3, color: AB, delta: "+12%" },
+    { label: "TOP GRADE", value: selectedPlayers.reduce((best, pd) => pd.player.overallScore > best.player.overallScore ? pd : best).player.cardGrade, sub: selectedPlayers.reduce((best, pd) => pd.player.overallScore > best.player.overallScore ? pd : best).player.name, icon: Flame, color: "#ffffff", delta: "+" },
+    { label: "HOT CARDS", value: String(selectedPlayers.filter(pd => pd.player.status === "fire" || pd.player.status === "heating").length), sub: "Fire / Heating", icon: TrendingUp, color: A, delta: "🔥" },
+  ] : [
     { label: "CURRENT PRICE", value: `$${lastPrice.toLocaleString()}`, sub: "PSA 9 · Last Sale", icon: DollarSign, color: A, delta: p.priceChange },
     { label: "30D VOLUME", value: String(totalVol), sub: "Sales", icon: BarChart3, color: AB, delta: "+34%" },
-    { label: "PRICE FLOOR", value: `$${Math.min(...priceHistory.map(h => h.price)).toLocaleString()}`, sub: "30-day low", icon: TrendingUp, color: "#ffffff", delta: "+8.1%" },
+    { label: "PRICE FLOOR", value: `$${Math.min(...singleHistory.map(h => h.price)).toLocaleString()}`, sub: "30-day low", icon: TrendingUp, color: "#ffffff", delta: "+8.1%" },
     { label: "CARD GRADE", value: p.cardGrade, sub: `Score: ${p.overallScore}`, icon: Flame, color: A, delta: p.priceChange },
   ];
+
+  // Custom dot with player name label (for all mode)
+  const NamedDot = (props: { cx?: number; cy?: number; playerName?: string; color?: string }) => {
+    const { cx = 0, cy = 0, playerName = "", color = A } = props;
+    const initials = playerName.split(" ").map(w => w[0]).join("");
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={4} fill={color} stroke="#050505" strokeWidth={1.5} />
+        <text x={cx} y={cy - 10} textAnchor="middle" fill={color} fontSize={9} fontWeight={700} fontFamily="Oswald, sans-serif">{initials}</text>
+      </g>
+    );
+  };
+
+  const MultiTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) => {
+    if (!active || !payload?.length) return null;
+    return (
+      <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.8rem", boxShadow: "0 8px 40px rgba(0,0,0,0.8)" }}>
+        <p style={{ color: "#555", fontWeight: 700, fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4, fontFamily: "Oswald, sans-serif" }}>{label}</p>
+        {payload.map((pp, i) => (
+          <p key={i} style={{ fontWeight: 700, color: pp.color || A, marginBottom: 1 }}>{pp.name}: <strong>${Number(pp.value).toLocaleString()}</strong></p>
+        ))}
+      </div>
+    );
+  };
 
   const PriceTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) => {
     if (!active || !payload?.length) return null;
@@ -319,7 +370,7 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050505", paddingBottom: 60, backgroundImage: t.vignette }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#050505", backgroundImage: t.vignette, paddingBottom: 60 }}>
       {/* ═══ NAVBAR ═══ */}
       <nav style={{
         position: "sticky", top: 0, zIndex: 50,
@@ -338,7 +389,7 @@ export default function HomePage() {
             color: A, cursor: "pointer", fontFamily: "Oswald, sans-serif", textTransform: "uppercase", letterSpacing: "0.06em",
           }}>← New Roster</button>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 7, height: 7, borderRadius: 99, background: A, boxShadow: `0 0 8px ${A}bb`, animation: "flicker 1.5s ease-in-out infinite" }} />
+            <div style={{ width: 7, height: 7, borderRadius: 99, background: "green", boxShadow: "0 0 8px rgba(0,128,0,0.7)", animation: "flicker 1.5s ease-in-out infinite" }} />
             <span style={{ fontSize: "0.65rem", color: A, fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>LIVE</span>
           </div>
         </div>
@@ -347,57 +398,62 @@ export default function HomePage() {
       <div style={{ maxWidth: 1300, margin: "0 auto", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 22 }}>
 
         {/* ═══ HERO HEADER ═══ */}
-        <div className="animate-fade-up" style={{
-          ...C, display: "grid", gridTemplateColumns: "auto 1fr", gap: 28,
-          position: "relative", overflow: "hidden",
-          border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)`,
-        }}>
-          <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent 0%, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent 100%)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
-          <div style={{ position: "absolute", right: -80, top: -80, width: 350, height: 350, background: `radial-gradient(circle, ${A}14 0%, transparent 65%)`, pointerEvents: "none" }} />
-
-          <div style={{ display: "flex", alignItems: "center", zIndex: 1 }}>
-            <div className="card-slab-wrap">
-              <div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
-              <div className="card-slab-frame" style={{ boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
-                <img src={cardImage} alt={p.name} width={180} height={260} style={{ borderRadius: 8, objectFit: "cover" }} />
-              </div>
+        {isAllMode ? (
+          <div className="animate-fade-up" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
+            <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent 0%, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent 100%)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
+            <h2 className="arena-headline" style={{ fontSize: "1.3rem", color: A, margin: "0 0 6px", zIndex: 1, position: "relative" }}>ROSTER OVERVIEW</h2>
+            <p style={{ color: "#555", fontSize: "0.75rem", marginBottom: 20, zIndex: 1, position: "relative" }}>Comparing {selectedPlayers.length} players — click a player in the sidebar to view individual analytics.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, zIndex: 1, position: "relative" }}>
+              {selectedPlayers.map((pd, i) => {
+                const img = CARDS.find(c => c.slug === pd.player.slug)!.image;
+                return (
+                  <div key={pd.player.slug} onClick={() => setActivePlayer(pd.player.slug)} style={{ display: "flex", alignItems: "center", gap: 12, background: `${PCOLORS[i]}0d`, border: `1px solid ${PCOLORS[i]}33`, borderRadius: 12, padding: 12, cursor: "pointer", transition: "all 0.2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = PCOLORS[i]; e.currentTarget.style.boxShadow = `0 0 20px ${PCOLORS[i]}33`; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = `${PCOLORS[i]}33`; e.currentTarget.style.boxShadow = "none"; }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `2px solid ${PCOLORS[i]}66` }}>
+                      <img src={img} alt={pd.player.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f0f0f0", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>{pd.player.name}</div>
+                      <div style={{ fontSize: "0.6rem", color: "#555" }}>{pd.player.team} · #{pd.player.number}</div>
+                      <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                        <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: `${PCOLORS[i]}1a`, color: PCOLORS[i], border: `1px solid ${PCOLORS[i]}33` }}>{pd.player.priceChange}</span>
+                        <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "rgba(255,255,255,0.04)", color: "#888" }}>SCORE {pd.player.overallScore}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, zIndex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div className="arena-headline" style={{ fontSize: "3rem", color: A, lineHeight: 1 }}>{p.priceChange}</div>
-                <div style={{ fontSize: "0.62rem", color: "#555", fontWeight: 600, marginTop: 3, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>{p.priceLabel}</div>
-              </div>
-              <span className={statusBadgeClass(p.status)} style={{ fontSize: "0.72rem" }}>{statusLabel(p.status)}</span>
-            </div>
-            <div>
-              <h1 className="arena-headline" style={{ fontSize: "clamp(1.8rem,4vw,3rem)", color: "#f0f0f0", margin: 0 }}>
-                {p.name.split(" ")[0].toUpperCase()} <span className={t.textClass}>{p.name.split(" ").slice(1).join(" ").toUpperCase()}</span>
-              </h1>
-              <p style={{ color: "#555", fontSize: "0.78rem", marginTop: 4, fontWeight: 500 }}>#{p.number} · {p.team} · {p.featuredCard}</p>
-            </div>
-            <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)`, border: "none", margin: "4px 0" }} />
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {[
-                { l: "LAST SALE", v: `$${lastPrice.toLocaleString()}` },
-                { l: "30D HIGH", v: `$${Math.max(...priceHistory.map(h => h.price)).toLocaleString()}` },
-                { l: "30D LOW", v: `$${Math.min(...priceHistory.map(h => h.price)).toLocaleString()}` },
-                { l: "VOLUME", v: `${totalVol} sales` },
-              ].map(s => (
-                <div key={s.l} style={{ background: `${A}0d`, border: `1px solid ${A}1f`, borderRadius: 10, padding: "6px 12px" }}>
-                  <div style={{ fontSize: "0.52rem", color: A, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, fontFamily: "Oswald, sans-serif" }}>{s.l}</div>
-                  <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#f0f0f0", marginTop: 1 }}>{s.v}</div>
+        ) : (
+          <div className="animate-fade-up" style={{ ...C, display: "grid", gridTemplateColumns: "auto 1fr", gap: 28, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
+            <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent 0%, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent 100%)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
+            <div style={{ position: "absolute", right: -80, top: -80, width: 350, height: 350, background: `radial-gradient(circle, ${A}14 0%, transparent 65%)`, pointerEvents: "none" }} />
+            <div style={{ display: "flex", alignItems: "center", zIndex: 1 }}>
+              <div className="card-slab-wrap"><div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
+                <div className="card-slab-frame" style={{ boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
+                  <img src={cardImage} alt={p.name} width={180} height={260} style={{ borderRadius: 8, objectFit: "cover" }} />
                 </div>
-              ))}
+              </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, background: `${A}0f`, border: `1px solid ${A}26`, borderRadius: 9, padding: "7px 12px" }}>
-              <Zap size={13} color={A} />
-              <span style={{ fontSize: "0.72rem", color: "#777" }}><strong style={{ color: A }}>AI SIGNAL:</strong> Card Grade: {p.cardGrade} · Overall Score: {p.overallScore}/100</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div><div className="arena-headline" style={{ fontSize: "3rem", color: A, lineHeight: 1 }}>{p.priceChange}</div><div style={{ fontSize: "0.62rem", color: "#555", fontWeight: 600, marginTop: 3, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>{p.priceLabel}</div></div>
+                <span className={statusBadgeClass(p.status)} style={{ fontSize: "0.72rem" }}>{statusLabel(p.status)}</span>
+              </div>
+              <div><h1 className="arena-headline" style={{ fontSize: "clamp(1.8rem,4vw,3rem)", color: "#f0f0f0", margin: 0 }}>{p.name.split(" ")[0].toUpperCase()} <span className={t.textClass}>{p.name.split(" ").slice(1).join(" ").toUpperCase()}</span></h1>
+                <p style={{ color: "#555", fontSize: "0.78rem", marginTop: 4, fontWeight: 500 }}>#{p.number} · {p.team} · {p.featuredCard}</p></div>
+              <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)`, border: "none", margin: "4px 0" }} />
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {[{ l: "LAST SALE", v: `$${lastPrice.toLocaleString()}` }, { l: "30D HIGH", v: `$${Math.max(...singleHistory.map(h => h.price)).toLocaleString()}` }, { l: "30D LOW", v: `$${Math.min(...singleHistory.map(h => h.price)).toLocaleString()}` }, { l: "VOLUME", v: `${totalVol} sales` }].map(s => (
+                  <div key={s.l} style={{ background: `${A}0d`, border: `1px solid ${A}1f`, borderRadius: 10, padding: "6px 12px" }}><div style={{ fontSize: "0.52rem", color: A, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, fontFamily: "Oswald, sans-serif" }}>{s.l}</div><div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#f0f0f0", marginTop: 1 }}>{s.v}</div></div>
+                ))}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: `${A}0f`, border: `1px solid ${A}26`, borderRadius: 9, padding: "7px 12px" }}><Zap size={13} color={A} /><span style={{ fontSize: "0.72rem", color: "#777" }}><strong style={{ color: A }}>AI SIGNAL:</strong> Card Grade: {p.cardGrade} · Overall Score: {p.overallScore}/100</span></div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* ═══ KPI STRIP ═══ */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
@@ -446,14 +502,26 @@ export default function HomePage() {
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
-                <AreaChart data={displayPrices} margin={{ top: 4, right: 8, left: -5, bottom: 0 }}>
-                  <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={A} stopOpacity={0.35} /><stop offset="100%" stopColor={A} stopOpacity={0} /></linearGradient></defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fill: "#444", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                  <YAxis tick={{ fill: "#444", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin - 200", "dataMax + 200"]} tickFormatter={v => `$${(Number(v) / 1000).toFixed(1)}k`} />
-                  <Tooltip content={<PriceTooltip />} />
-                  <Area type="monotone" dataKey="price" stroke={A} strokeWidth={2.5} fill="url(#pg)" name="price" dot={{ fill: A, strokeWidth: 0, r: 3 }} activeDot={{ fill: AB, strokeWidth: 2, stroke: A, r: 5 }} style={{ filter: `drop-shadow(0 0 8px ${A}80)` }} />
-                </AreaChart>
+                {isAllMode ? (
+                  <LineChart data={displayMerged} margin={{ top: 15, right: 8, left: -5, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fill: "#444", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                    <YAxis tick={{ fill: "#444", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin - 200", "dataMax + 200"]} tickFormatter={v => `$${(Number(v) / 1000).toFixed(1)}k`} />
+                    <Tooltip content={<MultiTooltip />} />
+                    {allPriceHistories.map((ph, i) => (
+                      <Line key={ph.slug} type="monotone" dataKey={ph.name} name={ph.name} stroke={ph.color} strokeWidth={2.5} dot={<NamedDot playerName={ph.name} color={ph.color} />} activeDot={{ r: 6, fill: ph.color, stroke: "#000", strokeWidth: 2 }} style={{ filter: `drop-shadow(0 0 8px ${ph.color}80)` }} />
+                    ))}
+                  </LineChart>
+                ) : (
+                  <AreaChart data={displayPrices} margin={{ top: 4, right: 8, left: -5, bottom: 0 }}>
+                    <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={A} stopOpacity={0.35} /><stop offset="100%" stopColor={A} stopOpacity={0} /></linearGradient></defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fill: "#444", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                    <YAxis tick={{ fill: "#444", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin - 200", "dataMax + 200"]} tickFormatter={v => `$${(Number(v) / 1000).toFixed(1)}k`} />
+                    <Tooltip content={<PriceTooltip />} />
+                    <Area type="monotone" dataKey="price" stroke={A} strokeWidth={2.5} fill="url(#pg)" name="price" dot={{ fill: A, strokeWidth: 0, r: 3 }} activeDot={{ fill: AB, strokeWidth: 2, stroke: A, r: 5 }} style={{ filter: `drop-shadow(0 0 8px ${A}80)` }} />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             </div>
 
@@ -462,16 +530,24 @@ export default function HomePage() {
               <p className="section-label" style={{ color: A }}>TRADING VOLUME</p>
               <h2 className="arena-headline" style={{ fontSize: "1.1rem", color: "#f0f0f0", margin: 0, marginBottom: 18 }}>DAILY SALES ACTIVITY</h2>
               <ResponsiveContainer width="100%" height={200}>
-                <ComposedChart data={displayPrices} margin={{ top: 4, right: 8, left: -5, bottom: 0 }}>
+                <ComposedChart data={isAllMode ? displayMerged : displayPrices} margin={{ top: 4, right: 8, left: -5, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                   <XAxis dataKey="day" tick={{ fill: "#444", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
                   <YAxis yAxisId="vol" orientation="left" tick={{ fill: "#444", fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="prc" orientation="right" tick={{ fill: "#444", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin - 200", "dataMax + 200"]} tickFormatter={v => `$${(Number(v) / 1000).toFixed(1)}k`} />
-                  <Tooltip content={<PriceTooltip />} />
-                  <Bar yAxisId="vol" dataKey="volume" name="volume" radius={[3, 3, 0, 0]}>
-                    {displayPrices.map((_, i) => <Cell key={i} fill={`${A}${Math.round((0.2 + (i / displayPrices.length) * 0.5) * 255).toString(16).padStart(2, '0')}`} />)}
-                  </Bar>
-                  <Line yAxisId="prc" type="monotone" dataKey="price" name="price" stroke="#fff" strokeWidth={2} dot={false} />
+                  <Tooltip content={isAllMode ? <MultiTooltip /> : <PriceTooltip />} />
+                  {isAllMode ? (
+                    allPriceHistories.map(ph => <Bar key={`b-${ph.slug}`} yAxisId="vol" dataKey={`${ph.name}_vol`} name={`${ph.name} vol`} fill={ph.color} stackId="a" />)
+                  ) : (
+                    <Bar yAxisId="vol" dataKey="volume" name="volume" radius={[3, 3, 0, 0]}>
+                      {displayPrices.map((_, i) => <Cell key={i} fill={`${A}${Math.round((0.2 + (i / displayPrices.length) * 0.5) * 255).toString(16).padStart(2, '0')}`} />)}
+                    </Bar>
+                  )}
+                  {isAllMode ? (
+                    allPriceHistories.map(ph => <Line key={`l-${ph.slug}`} yAxisId="prc" type="monotone" dataKey={ph.name} name={ph.name} stroke={ph.color} strokeWidth={2} dot={false} />)
+                  ) : (
+                    <Line yAxisId="prc" type="monotone" dataKey="price" name="price" stroke="#fff" strokeWidth={2} dot={false} />
+                  )}
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -563,7 +639,16 @@ export default function HomePage() {
                 <h2 className="arena-headline" style={{ fontSize: "0.88rem", color: "#f0f0f0", margin: 0 }}>YOUR ROSTER</h2>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {selectedPlayers.map(pd => {
+                <div onClick={() => setActivePlayer("all")} style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  background: isAllMode ? `${A}1a` : "rgba(255,255,255,0.03)", borderRadius: 10, padding: "10px",
+                  border: isAllMode ? `2px solid ${A}80` : "1px solid rgba(255,255,255,0.06)", cursor: "pointer", transition: "all 0.2s",
+                  boxShadow: isAllMode ? `0 0 20px ${A}33` : "none", color: isAllMode ? AB : "#888",
+                  fontFamily: "Oswald, sans-serif", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase"
+                }}>
+                  <Flame size={16} /> All Players (Combined)
+                </div>
+                {selectedPlayers.map((pd, i) => {
                   const isActive = pd.player.slug === activePlayer;
                   const img = CARDS.find(c => c.slug === pd.player.slug)!.image;
                   return (
