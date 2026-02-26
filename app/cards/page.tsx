@@ -297,7 +297,9 @@ export default function HomePage() {
   const cardImage = CARDS.find(c => c.slug === (isAllMode ? selectedPlayers[0].player.slug : activePlayer))!.image;
   const singleHistory = isAllMode ? allPriceHistories[0].history : generatePriceHistory(PLAYER_PRICES[activePlayer] ?? 5000, activePlayer.length * 0.3);
   const displayPrices = priceRange === "7d" ? singleHistory.slice(-7) : singleHistory;
-  const salesScatter = generateScatter(PLAYER_PRICES[isAllMode ? selectedPlayers[0].player.slug : activePlayer] ?? 5000);
+  const salesScatter = isAllMode
+    ? selectedPlayers.flatMap((pd, i) => generateScatter(PLAYER_PRICES[pd.player.slug] ?? 5000).map(pt => ({ ...pt, playerName: pd.player.name, color: PCOLORS[i] })))
+    : generateScatter(PLAYER_PRICES[activePlayer] ?? 5000);
   const lastPrice = singleHistory[singleHistory.length - 1].price;
   const totalVol = singleHistory.reduce((acc, b) => acc + b.volume, 0);
   const gradeColors = [A, AB, "#6b7280", "#4b5563", "#374151"];
@@ -350,12 +352,12 @@ export default function HomePage() {
     );
   };
 
-  const ScatterTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { price: number; daysAgo: number; volume: number; label: string } }[] }) => {
+  const ScatterTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { price: number; daysAgo: number; volume: number; label: string; playerName?: string } }[] }) => {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
       <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.8rem", boxShadow: "0 8px 40px rgba(0,0,0,0.8)" }}>
-        <p style={{ fontWeight: 800, color: A, marginBottom: 2, fontFamily: "Oswald, sans-serif" }}>{d.label}</p>
+        <p style={{ fontWeight: 800, color: A, marginBottom: 2, fontFamily: "Oswald, sans-serif" }}>{isAllMode && d.playerName ? `${d.playerName} - ${d.label}` : d.label}</p>
         <p style={{ color: "#aaa" }}>Price: <strong style={{ color: "#f0f0f0" }}>${d.price.toLocaleString()}</strong></p>
         <p style={{ color: "#aaa" }}>Volume: <strong style={{ color: "#f0f0f0" }}>{d.volume}</strong></p>
         <p style={{ color: "#555" }}>{d.daysAgo === 0 ? "Today" : `${d.daysAgo}d ago`}</p>
@@ -563,32 +565,49 @@ export default function HomePage() {
                   <YAxis dataKey="price" tick={{ fill: "#444", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(Number(v) / 1000).toFixed(0)}k`} domain={["dataMin - 500", "dataMax + 500"]} />
                   <ZAxis dataKey="volume" range={[60, 400]} />
                   <Tooltip content={<ScatterTooltip />} />
-                  <Scatter data={salesScatter.filter(d => d.label === "PSA 10")} fill={A} opacity={0.95} name="PSA 10" />
-                  <Scatter data={salesScatter.filter(d => d.label === "PSA 9")} fill="#fff" opacity={0.8} name="PSA 9" />
-                  <Scatter data={salesScatter.filter(d => d.label === "PSA 8")} fill="#6b7280" opacity={0.6} name="PSA 8" />
+                  {isAllMode ? (
+                    selectedPlayers.map((pd, i) => (
+                      <Scatter key={pd.player.slug} data={salesScatter.filter((d: any) => d.playerName === pd.player.name)} fill={PCOLORS[i]} opacity={0.8} name={pd.player.name} />
+                    ))
+                  ) : (
+                    <>
+                      <Scatter data={salesScatter.filter((d: any) => d.label === "PSA 10")} fill={A} opacity={0.95} name="PSA 10" />
+                      <Scatter data={salesScatter.filter((d: any) => d.label === "PSA 9")} fill="#fff" opacity={0.8} name="PSA 9" />
+                      <Scatter data={salesScatter.filter((d: any) => d.label === "PSA 8")} fill="#6b7280" opacity={0.6} name="PSA 8" />
+                    </>
+                  )}
                 </ScatterChart>
               </ResponsiveContainer>
               <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 10 }}>
-                {[{ label: "PSA 10", color: A }, { label: "PSA 9", color: "#fff" }, { label: "PSA 8", color: "#6b7280" }].map(g => (
-                  <div key={g.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 99, background: g.color, boxShadow: `0 0 6px ${g.color}66` }} />
-                    <span style={{ fontSize: "0.65rem", color: "#666", fontWeight: 600, fontFamily: "Oswald, sans-serif" }}>{g.label}</span>
-                  </div>
-                ))}
+                {isAllMode ? (
+                  selectedPlayers.map((pd, i) => (
+                    <div key={pd.player.slug} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: 99, background: PCOLORS[i], boxShadow: `0 0 6px ${PCOLORS[i]}66` }} />
+                      <span style={{ fontSize: "0.65rem", color: "#666", fontWeight: 600, fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>{pd.player.name}</span>
+                    </div>
+                  ))
+                ) : (
+                  [{ label: "PSA 10", color: A }, { label: "PSA 9", color: "#fff" }, { label: "PSA 8", color: "#6b7280" }].map(g => (
+                    <div key={g.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: 99, background: g.color, boxShadow: `0 0 6px ${g.color}66` }} />
+                      <span style={{ fontSize: "0.65rem", color: "#666", fontWeight: 600, fontFamily: "Oswald, sans-serif" }}>{g.label}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
             {/* Grade Breakdown */}
             <div className="animate-fade-up-delay-5" style={C}>
               <p className="section-label" style={{ color: A }}>POPULATION REPORT</p>
-              <h2 className="arena-headline" style={{ fontSize: "1.1rem", color: "#f0f0f0", margin: 0, marginBottom: 20 }}>GRADE DISTRIBUTION</h2>
+              <h2 className="arena-headline" style={{ fontSize: "1.1rem", color: "#f0f0f0", margin: 0, marginBottom: 20 }}>{isAllMode ? "COMBINED GRADE DISTRIBUTION" : "GRADE DISTRIBUTION"}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
                 {gradeBreakdown.map((g, gi) => (
                   <div key={g.grade}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 5 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: gradeColors[gi], minWidth: 55, fontFamily: "Oswald, sans-serif" }}>{g.grade}</span>
-                        <span style={{ fontSize: "0.65rem", color: "#444", fontWeight: 500 }}>{g.count} graded</span>
+                        <span style={{ fontSize: "0.65rem", color: "#444", fontWeight: 500 }}>{isAllMode ? g.count * 3 : g.count} graded</span>
                       </div>
                       <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#f0f0f0" }}>{g.avgPrice}</span>
                     </div>
