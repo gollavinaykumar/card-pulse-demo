@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ScatterChart, Scatter, ZAxis,
@@ -83,7 +84,8 @@ const gradeBreakdown = [
 ];
 
 // ══════════════════════════════════════════════════════════════════
-export default function HomePage() {
+export default function CardsPage() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>("theme");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [theme, setTheme] = useState<ThemeKey>("wwe");
@@ -129,6 +131,9 @@ export default function HomePage() {
           <div style={{ position: "absolute", right: "20%", top: "30%", width: 500, height: 500, background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 60%)" }} />
         </div>
         <div style={{ maxWidth: 700, textAlign: "center", zIndex: 1 }}>
+          <div onClick={() => router.push("/")} style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", color: "#555", fontSize: "0.75rem", marginBottom: 20 }}>
+            <ArrowLeft size={14} /> Back to Home
+          </div>
           <img src="/logo.png" alt="CardPulse" style={{ height: 60, width: "auto", objectFit: "contain", margin: "0 auto 28px", display: "block" }} />
           <h1 style={{ fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "clamp(2rem, 5vw, 3.2rem)", textTransform: "uppercase", letterSpacing: "0.04em", color: "#f0f0f0", lineHeight: 1.1, margin: "0 0 12px" }}>
             Choose Your <span style={{ color: "#dc2626" }}>Theme</span>
