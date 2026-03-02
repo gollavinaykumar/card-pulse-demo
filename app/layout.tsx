@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description: "Real-time sports card slab analytics, pricing trends, and signals.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+
 export default function RootLayout({
   children,
 }: Readonly<{

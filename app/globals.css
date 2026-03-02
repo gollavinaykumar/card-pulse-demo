@@ -630,3 +630,198 @@
   box-shadow: 0 0 8px rgba(220, 38, 38, 0.7);
   animation: flicker 1.5s ease-in-out infinite;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE LAYOUT
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Theme selection grid ── */
+.theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ── Card selection grid ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 20px;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+/* ── Dashboard navbar ── */
+.md-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  gap: 10px;
+}
+
+.md-nav .nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.md-nav .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+/* ── Single-player hero: card image + stats ── */
+.md-hero-single {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+/* ── All-players roster overview cards ── */
+.md-roster-grid {
+  display: grid;
+  gap: 14px;
+}
+
+/* ── KPI strip ── */
+.md-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+/* ── Two-column charts + sidebar ── */
+.md-two-col {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 18px;
+  align-items: start;
+}
+
+/* ── Sidebar sticky ── */
+.md-sidebar {
+  position: sticky;
+  top: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Chart containers: cap height on mobile ── */
+.md-chart-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ── Player card image inside hero ── */
+.md-hero-card-img {
+  width: 180px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* ══════════════════════════════════════════════════
+   TABLET  ≤ 1024px
+   ══════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .md-two-col {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   MOBILE  ≤ 768px
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Theme grid: 1 column */
+  .theme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Card select: 2 columns */
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Navbar: wrap & compress */
+  .md-nav {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .md-nav .nav-brand {
+    flex: 0 0 100%;
+  }
+
+  .md-nav .nav-actions {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  /* Hero: stack card below stats */
+  .md-hero-single {
+    grid-template-columns: 1fr;
+  }
+
+  .md-hero-card-img {
+    width: 120px;
+    height: 170px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  /* Roster grid: 1 col */
+  .md-roster-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* KPI strip: 2 columns */
+  .md-kpi {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Main two-column: stack */
+  .md-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sidebar: no sticky, full width */
+  .md-sidebar {
+    position: static;
+  }
+
+  /* Section padding */
+  .md-page-content {
+    padding: 16px 12px 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   VERY SMALL  ≤ 420px
+   ══════════════════════════════════════════════════ */
+@media (max-width: 420px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .md-kpi {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}

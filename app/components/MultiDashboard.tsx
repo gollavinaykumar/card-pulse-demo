@@ -154,10 +154,15 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
   ];
 
   const C: React.CSSProperties = {
-    background: "linear-gradient(145deg, rgba(14,14,14,0.95), rgba(8,8,8,0.98))",
-    border: `1px solid ${A}1a`, borderRadius: 16, padding: 24,
-    boxShadow: "0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
+    background: `linear-gradient(145deg, rgba(10,10,10,0.72), rgba(6,6,6,0.82))`,
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    border: `1px solid rgba(${statusColor},0.14)`,
+    borderRadius: 16,
+    padding: 24,
+    boxShadow: `0 4px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(10, 5, 5, 0.06)`,
   };
+
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#050505", backgroundImage: vignette, paddingBottom: 60, position: "relative" }}>
@@ -170,30 +175,32 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
         }} />
       )}
       {/* NAVBAR */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(28px)", background: "rgba(5,5,5,0.92)", borderBottom: `1px solid ${A}1a`, padding: "0 28px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <nav className="md-nav" style={{ backdropFilter: "blur(28px)", background: "rgba(5,5,5,0.92)", borderBottom: `1px solid ${A}1a` }}>
+        <div className="nav-brand">
           <img src="/logo.png" alt="CardPulse" style={{ height: 44, objectFit: "contain", filter: `drop-shadow(0 0 10px ${themeGlow})` }} />
-          <span style={{ background: `${A}1a`, border: `1px solid ${A}44`, borderRadius: 5, padding: "2px 8px", fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: A, fontFamily: "Oswald, sans-serif" }}>LIVE</span>
           <span style={{ background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 5, padding: "2px 8px", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: AB, fontFamily: "Oswald, sans-serif" }}>{themeName}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div className="nav-actions">
           <button onClick={onBack} style={{ background: `${A}1a`, border: `1px solid ${A}44`, borderRadius: 8, padding: "6px 16px", fontSize: "0.72rem", fontWeight: 700, color: A, cursor: "pointer", fontFamily: "Oswald, sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" }}>← Edit Roster</button>
           <button onClick={onNewRoster} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 16px", fontSize: "0.72rem", fontWeight: 700, color: "#666", cursor: "pointer", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>New Roster</button>
-          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 7, height: 7, borderRadius: 99, background: "green", boxShadow: "0 0 8px rgba(0,128,0,0.7)", animation: "flicker 1.5s ease-in-out infinite" }} />
-            <span style={{ fontSize: "0.65rem", color: A, fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>LIVE</span>
-          </div>
         </div>
       </nav>
+      {/* LIVE indicator sub-bar — tinted with status color */}
+      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6, padding: "5px 28px",  }}>
 
-      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 22 }}>
+        <div style={{ width: 7, height: 7, borderRadius: 99, background: "#22c55e", boxShadow: "0 0 8px rgba(34,197,94,0.8)", animation: "flicker 1.5s ease-in-out infinite" }} />
+        <span style={{ fontSize: "0.6rem", color: "#22c55e", fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase" }}>Live Market</span>
+      </div>
+
+      <div className="md-page-content" style={{ maxWidth: 1300, margin: "0 auto", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 22 }}>
         {/* HERO */}
         {isAll ? (
           <div className="animate-fade-up" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
             <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
             <h2 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.3rem", color: A, margin: "0 0 6px", textTransform: "uppercase" }}>ROSTER OVERVIEW</h2>
             <p style={{ color: "#555", fontSize: "0.75rem", marginBottom: 20 }}>Comparing {players.length} players — click a player in the sidebar to view individual analytics.</p>
-            <div style={{ display: "grid", gridTemplateColumns: `repeat(${players.length}, 1fr)`, gap: 14 }}>
+            <div className="md-roster-grid" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))` }}>
+
               {players.map((pd, i) => (
                 <div key={pd.player.slug} onClick={() => setActivePlayer(pd.player.slug)} style={{ display: "flex", alignItems: "center", gap: 12, background: `${PCOLORS[i]}0d`, border: `1px solid ${PCOLORS[i]}33`, borderRadius: 12, padding: 12, cursor: "pointer", transition: "all 0.2s" }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = PCOLORS[i]; e.currentTarget.style.boxShadow = `0 0 20px ${PCOLORS[i]}33`; }}
@@ -214,13 +221,13 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             </div>
           </div>
         ) : (
-          <div className="animate-fade-up" style={{ ...C, display: "grid", gridTemplateColumns: "auto 1fr", gap: 28, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
+          <div className="animate-fade-up md-hero-single" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
             <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
             <div style={{ display: "flex", alignItems: "center", zIndex: 1 }}>
               <div className="card-slab-wrap">
                 <div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
                 <div className="card-slab-frame" style={{ boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
-                  <img src={cardImage} alt={p.name} width={180} height={260} style={{ borderRadius: 8, objectFit: "cover" }} />
+                  <img src={cardImage} alt={p.name} className="md-hero-card-img" />
                 </div>
               </div>
             </div>
@@ -249,7 +256,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
         )}
 
         {/* KPI STRIP */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+        <div className="md-kpi animate-fade-up-delay-1">
           {dashKpis.map((kpi, i) => {
             const Icon = kpi.icon;
             return (
@@ -267,7 +274,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
         </div>
 
         {/* TWO COLUMNS */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 18, alignItems: "start" }}>
+        <div className="md-two-col">
           {/* LEFT — charts */}
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {/* Price trend */}
@@ -364,7 +371,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
           </div>
 
           {/* RIGHT SIDEBAR */}
-          <div className="animate-fade-up-delay-2" style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 72 }}>
+          <div className="md-sidebar animate-fade-up-delay-2">
             {/* Events */}
             <div style={C}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>

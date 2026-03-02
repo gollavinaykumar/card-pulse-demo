@@ -243,7 +243,7 @@ export default function HomePage() {
             Choose Your <span style={{ color: "#dc2626" }}>Theme</span>
           </h1>
           <p style={{ color: "#555", fontSize: "0.9rem", maxWidth: 500, margin: "0 auto 40px", lineHeight: 1.6 }}>Pick a visual style — then select your players.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, maxWidth: 560, margin: "0 auto" }}>
+          <div className="theme-grid">
             {(Object.keys(THEMES) as ThemeKey[]).map(key => {
               const th = THEMES[key]; const Icon = th.icon;
               return (
@@ -300,7 +300,7 @@ export default function HomePage() {
           </div>
 
           {/* Cards grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 20, maxWidth: 1060, margin: "0 auto" }}>
+          <div className="card-grid">
             {CARDS.map((card, idx) => {
               const isSelected = selected.has(card.slug);
               const pd = getPlayer(card.slug)!;
