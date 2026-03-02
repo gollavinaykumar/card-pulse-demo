@@ -6,6 +6,7 @@ import {
   Eye, Zap, Check, ArrowLeft, ChevronLeft, ChevronRight, TrendingUp, Play,
 } from "lucide-react";
 import MultiDashboard from "@/app/components/MultiDashboard";
+import LoadingScreen from "@/app/components/LoadingScreen";
 import { getPlayer } from "@/lib/players";
 import {
   statusLabel, statusBadgeClass, timeAgo, newsTypeLabel,
@@ -233,6 +234,8 @@ export default function HomePage() {
   if (step === "theme") {
     return (
       <div style={{ minHeight: "100vh", backgroundColor: "#050505", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <LoadingScreen />
+
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
           <div style={{ position: "absolute", left: "20%", top: "30%", width: 500, height: 500, background: "radial-gradient(circle, rgba(220,38,38,0.06) 0%, transparent 60%)" }} />
           <div style={{ position: "absolute", right: "20%", top: "30%", width: 500, height: 500, background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 60%)" }} />
