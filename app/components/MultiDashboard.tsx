@@ -29,7 +29,95 @@ function daysAgo(iso: string) {
   return Math.round((Date.now() - new Date(iso).getTime()) / 86400000);
 }
 
+// Flame positions & sizes (pre-computed for deterministic render)
+const FLAMES = [
+  { left: 8,  w: 28, h: 55, delay: 0,    dur: 0.85, color: "rgba(239,68,68,0.85)" },
+  { left: 18, w: 40, h: 80, delay: 0.1,  dur: 1.0,  color: "rgba(245,158,11,0.8)" },
+  { left: 28, w: 24, h: 48, delay: 0.25, dur: 0.75, color: "rgba(239,68,68,0.9)" },
+  { left: 38, w: 36, h: 70, delay: 0.05, dur: 0.95, color: "rgba(251,191,36,0.75)" },
+  { left: 48, w: 44, h: 90, delay: 0.15, dur: 1.1,  color: "rgba(239,68,68,0.8)" },
+  { left: 58, w: 30, h: 62, delay: 0.3,  dur: 0.88, color: "rgba(245,158,11,0.85)" },
+  { left: 68, w: 38, h: 75, delay: 0.08, dur: 0.92, color: "rgba(239,68,68,0.78)" },
+  { left: 78, w: 26, h: 52, delay: 0.2,  dur: 0.82, color: "rgba(251,191,36,0.8)" },
+  { left: 88, w: 34, h: 65, delay: 0.12, dur: 1.05, color: "rgba(239,68,68,0.88)" },
+];
+const EMBERS = [
+  { left: 12, delay: 0,    dur: 1.6, alt: false },
+  { left: 22, delay: 0.3,  dur: 1.9, alt: true  },
+  { left: 35, delay: 0.1,  dur: 1.4, alt: false },
+  { left: 45, delay: 0.5,  dur: 2.1, alt: true  },
+  { left: 55, delay: 0.2,  dur: 1.7, alt: false },
+  { left: 65, delay: 0.4,  dur: 1.5, alt: true  },
+  { left: 75, delay: 0.15, dur: 1.8, alt: false },
+  { left: 85, delay: 0.35, dur: 2.0, alt: true  },
+];
+
+function FireEffect() {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
+      {/* Flickering base glow — bottom band */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, height: "38%",
+        background: "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(239,68,68,0.32) 0%, rgba(245,158,11,0.16) 45%, transparent 75%)",
+        animation: "fireGlowFlicker 0.28s ease-in-out infinite alternate",
+      }} />
+      {/* Second flicker layer offset */}
+      <div style={{
+        position: "absolute", bottom: 0, left: "5%", right: "5%", height: "28%",
+        background: "radial-gradient(ellipse 60% 100% at 50% 100%, rgba(245,158,11,0.22) 0%, transparent 70%)",
+        animation: "fireGlowFlicker 0.41s ease-in-out 0.14s infinite alternate",
+      }} />
+      {/* Flame tongues */}
+      {FLAMES.map((f, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          bottom: 0,
+          left: `${f.left}%`,
+          width: f.w,
+          height: f.h,
+          background: `radial-gradient(ellipse 60% 100% at 50% 100%, ${f.color} 0%, transparent 80%)`,
+          borderRadius: "50% 50% 30% 30%",
+          filter: "blur(3px)",
+          animation: `flameDance ${f.dur}s ease-in-out ${f.delay}s infinite`,
+          transformOrigin: "bottom center",
+        }} />
+      ))}
+      {/* Ember particles */}
+      {EMBERS.map((e, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          bottom: "4%",
+          left: `${e.left}%`,
+          width: 3, height: 3,
+          borderRadius: "50%",
+          background: i % 2 === 0 ? "#ef4444" : "#f59e0b",
+          boxShadow: `0 0 5px ${i % 2 === 0 ? "#ef4444" : "#f59e0b"}`,
+          animation: `${e.alt ? "emberRise2" : "emberRise"} ${e.dur}s ease-out ${e.delay}s infinite`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+function HeatEffect() {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, height: "45%",
+        background: "radial-gradient(ellipse 70% 100% at 50% 100%, rgba(245,158,11,0.2) 0%, rgba(239,68,68,0.08) 50%, transparent 75%)",
+        animation: "heatShimmer 1.8s ease-in-out infinite",
+      }} />
+      <div style={{
+        position: "absolute", bottom: 0, left: "15%", right: "15%", height: "30%",
+        background: "radial-gradient(ellipse 60% 100% at 50% 100%, rgba(245,158,11,0.14) 0%, transparent 70%)",
+        animation: "heatShimmer 2.4s ease-in-out 0.6s infinite",
+      }} />
+    </div>
+  );
+}
+
 const gradeBreakdown = [
+
   { grade: "PSA 10", pct: 8,  count: 124, avgPrice: "$36,500" },
   { grade: "PSA 9",  pct: 35, count: 543, avgPrice: "$13,050" },
   { grade: "PSA 8",  pct: 28, count: 434, avgPrice: "$4,200" },
@@ -78,6 +166,8 @@ interface Props {
 export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vignette, themeName, themeGlow, initialPlayer }: Props) {
   const [activePlayer, setActivePlayer] = useState<string>(initialPlayer ?? "all");
   const [priceRange, setPriceRange] = useState<"7d"|"30d">("30d");
+  const [showFlash, setShowFlash] = useState(true);
+  React.useEffect(() => { const t = setTimeout(() => setShowFlash(false), 700); return () => clearTimeout(t); }, []);
 
   // One unique color per player slot (up to 5)
   const PCOLORS = ["#ef4444", "#22d3ee", "#a78bfa", "#34d399", "#fb923c"];
@@ -166,6 +256,8 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#050505", backgroundImage: vignette, paddingBottom: 60, position: "relative" }}>
+      {/* Page-entry flash */}
+      {showFlash && <div className="page-flash" />}
       {/* Status-based ambient glow — only for single player */}
       {isSinglePlayer && (
         <div style={{
@@ -195,7 +287,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
       <div className="md-page-content" style={{ maxWidth: 1300, margin: "0 auto", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 22 }}>
         {/* HERO */}
         {isAll ? (
-          <div className="animate-fade-up" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
+          <div className="animate-fade-up hero-slam" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
             <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
             <h2 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.3rem", color: A, margin: "0 0 6px", textTransform: "uppercase" }}>ROSTER OVERVIEW</h2>
             <p style={{ color: "#555", fontSize: "0.75rem", marginBottom: 20 }}>Comparing {players.length} players — click a player in the sidebar to view individual analytics.</p>

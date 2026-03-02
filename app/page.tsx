@@ -196,6 +196,8 @@ export default function HomePage() {
   const A  = t.accent;
   const AB = t.accentBright;
 
+  const [showPageFlash, setShowPageFlash] = useState(false);
+
   const toggleCard = (slug: string) => {
     setSelected(prev => {
       const next = new Set(prev);
@@ -213,8 +215,12 @@ export default function HomePage() {
   const isSingle = selectedPlayers.length === 1;
 
   const goToAnalytics = () => {
-    setActivePlayer("all");
-    setStep("analytics");
+    setShowPageFlash(true);
+    setTimeout(() => {
+      setShowPageFlash(false);
+      setActivePlayer("all");
+      setStep("analytics");
+    }, 550);
   };
 
   const scrollCarousel = (dir: "left" | "right") => {
@@ -308,22 +314,97 @@ export default function HomePage() {
               const isSelected = selected.has(card.slug);
               const pd = getPlayer(card.slug)!;
               const p = pd.player;
+              const isFire    = p.status === "fire";
+              const isHeating = p.status === "heating";
+
+              // Status class for glow on unselected cards
+              const statusBurnClass = isFire ? "card-status-fire" : isHeating ? "card-status-heating" : "";
+
+              // Selected state animation overrides status float
+              const selectedAnim = isFire && isSelected
+                ? "cardFireFloat 2s ease-in-out infinite"
+                : isHeating && isSelected
+                ? "cardHeatFloat 2.4s ease-in-out infinite"
+                : "none";
+
               return (
-                <div key={card.slug} onClick={() => toggleCard(card.slug)}
-                  style={{ background: isSelected ? `linear-gradient(145deg, ${A}1a, rgba(14,14,14,0.96))` : "linear-gradient(145deg, rgba(14,14,14,0.95), rgba(8,8,8,0.98))", border: `2px solid ${isSelected ? `${A}80` : "rgba(255,255,255,0.06)"}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", transition: "all 0.35s cubic-bezier(0.4,0,0.2,1)", transform: isSelected ? "translateY(-6px) scale(1.02)" : "translateY(0)", boxShadow: isSelected ? `0 20px 50px ${A}33, 0 0 30px ${A}1a` : "0 4px 30px rgba(0,0,0,0.5)", position: "relative", animation: `fadeSlideUp 0.55s ease-out ${idx * 0.08}s both` }}>
+                <div
+                  key={card.slug}
+                  className={`player-card-3d ${!isSelected ? statusBurnClass : ""}`}
+                  onClick={() => toggleCard(card.slug)}
+                  onMouseMove={e => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const cx = rect.width / 2, cy = rect.height / 2;
+                    const rotX = ((y - cy) / cy) * -9;
+                    const rotY = ((x - cx) / cx) * 9;
+                    e.currentTarget.style.transition = "box-shadow 0.15s ease";
+                    e.currentTarget.style.transform = `perspective(700px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-8px) scale(1.04)`;
+                    const sh = e.currentTarget.querySelector(".card-shimmer-layer") as HTMLElement;
+                    if (sh) { sh.style.opacity = "1"; sh.style.background = `radial-gradient(circle at ${(x / rect.width) * 100}% ${(y / rect.height) * 100}%, rgba(255,255,255,0.18) 0%, transparent 60%)`; }
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transition = "all 0.45s cubic-bezier(0.4,0,0.2,1)";
+                    e.currentTarget.style.transform = isSelected ? "translateY(-6px) scale(1.02)" : "translateY(0) scale(1)";
+                    const sh = e.currentTarget.querySelector(".card-shimmer-layer") as HTMLElement;
+                    if (sh) { sh.style.opacity = "0"; sh.style.background = "none"; }
+                  }}
+                  style={{
+                    background: isSelected
+                      ? `linear-gradient(145deg, ${A}1a, rgba(14,14,14,0.96))`
+                      : "linear-gradient(145deg, rgba(14,14,14,0.95), rgba(8,8,8,0.98))",
+                    border: `2px solid ${isSelected ? `${A}80` : "rgba(255,255,255,0.06)"}`,
+                    borderRadius: 18, overflow: "hidden",
+                    transition: "all 0.45s cubic-bezier(0.4,0,0.2,1)",
+                    transform: isSelected ? "translateY(-6px) scale(1.02)" : "translateY(0)",
+                    boxShadow: isSelected
+                      ? `0 20px 50px ${A}44, 0 0 30px ${A}22`
+                      : "0 4px 30px rgba(0,0,0,0.5)",
+                    animation: isSelected && (isFire || isHeating)
+                      ? selectedAnim
+                      : `fadeSlideUp 0.55s ease-out ${idx * 0.09}s both`,
+                    position: "relative",
+                  }}
+                >
+                  {/* Holographic shimmer follows mouse */}
+                  <div className="card-shimmer-layer" style={{ position: "absolute", inset: 0, zIndex: 6, borderRadius: 18, pointerEvents: "none", opacity: 0, transition: "opacity 0.25s ease, background 0.08s ease" }} />
+
+                  {/* Entry shimmer sweep (plays once on mount) */}
+                  <div className="card-holo-entry" style={{ animationDelay: `${idx * 0.09 + 0.4}s` }} />
+
+                  {/* Selected pulse ring */}
                   {isSelected && (
-                    <div style={{ position: "absolute", top: 12, right: 12, zIndex: 10, width: 32, height: 32, borderRadius: "50%", background: A, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 20px ${A}99` }}>
+                    <div style={{ position: "absolute", inset: -2, borderRadius: 20, zIndex: 0, border: `2px solid ${A}99`, pointerEvents: "none", animation: "selectedRingPulse 2s ease-in-out infinite" }} />
+                  )}
+
+                  {/* Selected check badge */}
+                  {isSelected && (
+                    <div className="check-pop" style={{ position: "absolute", top: 12, right: 12, zIndex: 10, width: 32, height: 32, borderRadius: "50%", background: A, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 20px ${A}99` }}>
                       <Check size={18} color="#fff" strokeWidth={3} />
                     </div>
                   )}
-                  <div style={{ position: "relative", width: "100%", paddingTop: "130%", overflow: "hidden" }}>
-                    <img src={card.image} alt={p.name} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", transition: "transform 0.4s ease" }}
-                      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; }}
+
+                  {/* Player image */}
+                  <div style={{ position: "relative", width: "100%", paddingTop: "130%", overflow: "hidden", zIndex: 2 }}>
+                    <img src={card.image} alt={p.name} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", transition: "transform 0.5s ease" }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.07)"; }}
                       onMouseLeave={e => { e.currentTarget.style.transform = ""; }} />
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, #050505 10%, transparent 100%)" }} />
+                    {/* Status glow on image for fire/heating */}
+                    {(isFire || isHeating) && (
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: isFire ? "linear-gradient(to top, rgba(239,68,68,0.25), transparent)" : "linear-gradient(to top, rgba(245,158,11,0.2), transparent)", pointerEvents: "none", zIndex: 3 }} />
+                    )}
                   </div>
-                  <div style={{ padding: "0 16px 18px", marginTop: -50, position: "relative", zIndex: 2 }}>
-                    <h3 style={{ fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "1.1rem", textTransform: "uppercase", color: "#f0f0f0", margin: "0 0 4px", letterSpacing: "0.03em" }}>{p.name}</h3>
+
+                  {/* Card info */}
+                  <div style={{ padding: "0 16px 18px", marginTop: -50, position: "relative", zIndex: 4 }}>
+                    <h3 style={{ fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "1.1rem", textTransform: "uppercase", color: "#f0f0f0", margin: "0 0 4px", letterSpacing: "0.03em" }}>
+                      {p.name}
+                      {isFire && <span style={{ marginLeft: 6, fontSize: "0.9rem" }}>🔥</span>}
+                      {isHeating && <span style={{ marginLeft: 6, fontSize: "0.9rem" }}>⚡</span>}
+                      {p.status === "cooling" && <span style={{ marginLeft: 6, fontSize: "0.9rem" }}>❄️</span>}
+                    </h3>
                     <p style={{ color: "#555", fontSize: "0.7rem", margin: "0 0 10px" }}>#{p.number} · {p.team} · {p.position}</p>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
                       <span style={{ fontSize: "0.58rem", fontWeight: 700, padding: "2px 7px", borderRadius: 5, background: `${A}1a`, color: A, border: `1px solid ${A}33`, fontFamily: "Oswald, sans-serif" }}>{p.priceChange}</span>
@@ -339,7 +420,11 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Page-flash transition overlay — fires when Get Started clicked */}
+        {showPageFlash && <div className="page-flash" />}
+
         {/* ── Floating GET STARTED bar ── */}
+
         <div style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
           padding: "16px 24px 24px",
