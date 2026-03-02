@@ -234,11 +234,260 @@
         },
         {
             "id": "m5",
-            "ts": "2025-02-22T15:45:00Z",
+            "ts": "2026-02-22T15:45:00Z",
             "type": "price",
             "title": "Auction Alert",
             "body": "2017 Prizm Gold /10 PSA 10 sold for $185,000 at Heritage. Record for modern football.",
             "tag": "RECORD"
+        }
+    ],
+    "price_history": [
+        {
+            "date": "2026-01-31",
+            "price": 10800,
+            "volume": 18
+        },
+        {
+            "date": "2026-02-01",
+            "price": 10950,
+            "volume": 22
+        },
+        {
+            "date": "2026-02-02",
+            "price": 11100,
+            "volume": 14
+        },
+        {
+            "date": "2026-02-03",
+            "price": 10900,
+            "volume": 11
+        },
+        {
+            "date": "2026-02-04",
+            "price": 11200,
+            "volume": 26
+        },
+        {
+            "date": "2026-02-05",
+            "price": 11500,
+            "volume": 31
+        },
+        {
+            "date": "2026-02-06",
+            "price": 11350,
+            "volume": 19
+        },
+        {
+            "date": "2026-02-07",
+            "price": 11600,
+            "volume": 23
+        },
+        {
+            "date": "2026-02-08",
+            "price": 11750,
+            "volume": 17
+        },
+        {
+            "date": "2026-02-09",
+            "price": 12000,
+            "volume": 35
+        },
+        {
+            "date": "2026-02-10",
+            "price": 11900,
+            "volume": 28
+        },
+        {
+            "date": "2026-02-11",
+            "price": 12100,
+            "volume": 21
+        },
+        {
+            "date": "2026-02-12",
+            "price": 12400,
+            "volume": 38
+        },
+        {
+            "date": "2026-02-13",
+            "price": 12250,
+            "volume": 16
+        },
+        {
+            "date": "2026-02-14",
+            "price": 12600,
+            "volume": 42
+        },
+        {
+            "date": "2026-02-15",
+            "price": 12800,
+            "volume": 33
+        },
+        {
+            "date": "2026-02-16",
+            "price": 12500,
+            "volume": 20
+        },
+        {
+            "date": "2026-02-17",
+            "price": 12700,
+            "volume": 24
+        },
+        {
+            "date": "2026-02-18",
+            "price": 13000,
+            "volume": 45
+        },
+        {
+            "date": "2026-02-19",
+            "price": 12900,
+            "volume": 29
+        },
+        {
+            "date": "2026-02-20",
+            "price": 13100,
+            "volume": 37
+        },
+        {
+            "date": "2026-02-21",
+            "price": 13300,
+            "volume": 31
+        },
+        {
+            "date": "2026-02-22",
+            "price": 13500,
+            "volume": 48
+        },
+        {
+            "date": "2026-02-23",
+            "price": 13200,
+            "volume": 22
+        },
+        {
+            "date": "2026-02-24",
+            "price": 13600,
+            "volume": 41
+        },
+        {
+            "date": "2026-02-25",
+            "price": 13800,
+            "volume": 36
+        },
+        {
+            "date": "2026-02-26",
+            "price": 14000,
+            "volume": 53
+        },
+        {
+            "date": "2026-02-27",
+            "price": 13900,
+            "volume": 27
+        },
+        {
+            "date": "2026-02-28",
+            "price": 14200,
+            "volume": 44
+        },
+        {
+            "date": "2026-03-01",
+            "price": 14500,
+            "volume": 58
+        },
+        {
+            "date": "2026-03-02",
+            "price": 14800,
+            "volume": 62
+        }
+    ],
+    "psa_sales": [
+        {
+            "date": "2026-03-02T10:14:00Z",
+            "grade": "PSA 10",
+            "price": 42500,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-03-01T18:30:00Z",
+            "grade": "PSA 9",
+            "price": 14800,
+            "platform": "PWCC"
+        },
+        {
+            "date": "2026-02-28T14:22:00Z",
+            "grade": "PSA 9",
+            "price": 14200,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-02-27T09:05:00Z",
+            "grade": "PSA 10",
+            "price": 41000,
+            "platform": "Heritage"
+        },
+        {
+            "date": "2026-02-26T20:45:00Z",
+            "grade": "PSA 8",
+            "price": 4800,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-02-25T11:30:00Z",
+            "grade": "PSA 9",
+            "price": 13800,
+            "platform": "PWCC"
+        },
+        {
+            "date": "2026-02-24T16:00:00Z",
+            "grade": "PSA 10",
+            "price": 40500,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-02-22T08:20:00Z",
+            "grade": "PSA 8",
+            "price": 4600,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-02-20T13:44:00Z",
+            "grade": "PSA 9",
+            "price": 13100,
+            "platform": "CardLadder"
+        },
+        {
+            "date": "2026-02-18T19:10:00Z",
+            "grade": "PSA 10",
+            "price": 39800,
+            "platform": "PWCC"
+        },
+        {
+            "date": "2026-02-15T10:00:00Z",
+            "grade": "PSA 9",
+            "price": 12800,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-02-12T14:30:00Z",
+            "grade": "PSA 8",
+            "price": 4400,
+            "platform": "eBay"
+        },
+        {
+            "date": "2026-02-09T09:15:00Z",
+            "grade": "PSA 10",
+            "price": 38500,
+            "platform": "Heritage"
+        },
+        {
+            "date": "2026-02-05T17:00:00Z",
+            "grade": "PSA 9",
+            "price": 11500,
+            "platform": "PWCC"
+        },
+        {
+            "date": "2026-02-01T12:00:00Z",
+            "grade": "PSA 8",
+            "price": 4200,
+            "platform": "eBay"
         }
     ]
 }
