@@ -825,3 +825,34 @@
     gap: 8px;
   }
 }
+/* ── Burn / flame glow for fire & heating status roster cards ── */
+@keyframes burnPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(239,68,68,0.45), 0 0 28px rgba(245,158,11,0.25), inset 0 0 8px rgba(239,68,68,0.1);
+    border-color: rgba(239,68,68,0.55);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(239,68,68,0.75), 0 0 55px rgba(245,158,11,0.45), inset 0 0 14px rgba(239,68,68,0.18);
+    border-color: rgba(245,158,11,0.85);
+  }
+}
+@keyframes heatPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(245,158,11,0.35), 0 0 22px rgba(245,158,11,0.15);
+    border-color: rgba(245,158,11,0.45);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(245,158,11,0.65), 0 0 42px rgba(245,158,11,0.3);
+    border-color: rgba(245,158,11,0.75);
+  }
+}
+.card-status-fire {
+  animation: burnPulse 1.6s ease-in-out infinite !important;
+  background: linear-gradient(135deg, rgba(239,68,68,0.14), rgba(245,158,11,0.06)) !important;
+  border-color: rgba(239,68,68,0.55) !important;
+}
+.card-status-heating {
+  animation: heatPulse 2.2s ease-in-out infinite !important;
+  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.04)) !important;
+  border-color: rgba(245,158,11,0.45) !important;
+}

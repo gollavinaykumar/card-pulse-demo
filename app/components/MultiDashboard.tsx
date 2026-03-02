@@ -201,23 +201,40 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             <p style={{ color: "#555", fontSize: "0.75rem", marginBottom: 20 }}>Comparing {players.length} players — click a player in the sidebar to view individual analytics.</p>
             <div className="md-roster-grid" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))` }}>
 
-              {players.map((pd, i) => (
-                <div key={pd.player.slug} onClick={() => setActivePlayer(pd.player.slug)} style={{ display: "flex", alignItems: "center", gap: 12, background: `${PCOLORS[i]}0d`, border: `1px solid ${PCOLORS[i]}33`, borderRadius: 12, padding: 12, cursor: "pointer", transition: "all 0.2s" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = PCOLORS[i]; e.currentTarget.style.boxShadow = `0 0 20px ${PCOLORS[i]}33`; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = `${PCOLORS[i]}33`; e.currentTarget.style.boxShadow = "none"; }}>
-                  <div style={{ width: 56, height: 56, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `2px solid ${PCOLORS[i]}66` }}>
-                    <img src={CARDS_MAP[pd.player.slug] ?? "/mahomes.png"} alt={pd.player.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f0f0f0", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>{pd.player.name}</div>
-                    <div style={{ fontSize: "0.6rem", color: "#555" }}>{pd.player.team} · #{pd.player.number}</div>
-                    <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                      <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: `${PCOLORS[i]}1a`, color: PCOLORS[i], border: `1px solid ${PCOLORS[i]}33` }}>{pd.player.priceChange}</span>
-                      <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "rgba(255,255,255,0.04)", color: "#888" }}>SCORE {pd.player.overallScore}</span>
+              {players.map((pd, i) => {
+                const statusClass =
+                  pd.player.status === "fire" ? "card-status-fire" :
+                  pd.player.status === "heating" ? "card-status-heating" : "";
+                const statusEmoji =
+                  pd.player.status === "fire" ? " 🔥" :
+                  pd.player.status === "heating" ? " ⚡" :
+                  pd.player.status === "cooling" ? " ❄️" : "";
+                return (
+                  <div key={pd.player.slug} onClick={() => setActivePlayer(pd.player.slug)}
+                    className={statusClass}
+                    style={{ position: "relative", display: "flex", alignItems: "center", gap: 12, background: `${PCOLORS[i]}0d`, border: `1px solid ${PCOLORS[i]}33`, borderRadius: 12, padding: 12, cursor: "pointer", transition: "border-color 0.2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = PCOLORS[i]; }}
+                    onMouseLeave={e => { if (!statusClass) e.currentTarget.style.borderColor = `${PCOLORS[i]}33`; }}>
+                    {/* Status badge top-right */}
+                    <span className={statusBadgeClass(pd.player.status)} style={{ position: "absolute", top: 8, right: 8, fontSize: "0.48rem", padding: "1px 6px" }}>
+                      {statusLabel(pd.player.status)}
+                    </span>
+                    <div style={{ width: 56, height: 56, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `2px solid ${PCOLORS[i]}66` }}>
+                      <img src={CARDS_MAP[pd.player.slug] ?? "/mahomes.png"} alt={pd.player.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f0f0f0", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>{pd.player.name}</div>
+                      <div style={{ fontSize: "0.6rem", color: "#555" }}>{pd.player.team} · #{pd.player.number}</div>
+                      <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                        <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: `${PCOLORS[i]}1a`, color: PCOLORS[i], border: `1px solid ${PCOLORS[i]}33` }}>{pd.player.priceChange}</span>
+                        <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "rgba(255,255,255,0.04)", color: "#888" }}>SCORE {pd.player.overallScore}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+
+              })}
+
             </div>
           </div>
         ) : (
