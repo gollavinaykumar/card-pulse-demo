@@ -186,10 +186,11 @@ function PlayerCard({ pd, image, A, AB, idx, single }: { pd: PlayerData; image: 
 
 // ══════════════════════════════════════════════════════════════════
 export default function HomePage() {
-  const [step, setStep]         = useState<Step>("theme");
+  const [step, setStep]         = useState<"theme"|"select"|"buy"|"analytics">("theme");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [theme, setTheme]       = useState<ThemeKey>("wwe");
   const [activePlayer, setActivePlayer] = useState<string>("");
+  const [buyPrices, setBuyPrices] = useState<Record<string, string>>({});
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const t  = THEMES[theme];
@@ -218,8 +219,7 @@ export default function HomePage() {
     setShowPageFlash(true);
     setTimeout(() => {
       setShowPageFlash(false);
-      setActivePlayer("all");
-      setStep("analytics");
+      setStep("buy");
     }, 550);
   };
 
@@ -463,7 +463,141 @@ export default function HomePage() {
     );
   }
 
-  // ════ STEP 3: ANALYTICS ═════════
+  // ════ STEP 2.5: BUY PRICE ENTRY ═══════════════════════════════
+  if (step === "buy") {
+    const parsedPrices: Record<string, number> = {};
+    Object.entries(buyPrices).forEach(([slug, val]) => {
+      const n = parseFloat(val.replace(/[^0-9.]/g, ""));
+      if (!isNaN(n) && n > 0) parsedPrices[slug] = n;
+    });
+
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "#050505", backgroundImage: t.vignette, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+        {showPageFlash && <div className="page-flash" />}
+        {/* Ambient glow */}
+        <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", left: "20%", top: "20%", width: 600, height: 600, background: `radial-gradient(circle, ${A}0e 0%, transparent 60%)` }} />
+          <div style={{ position: "absolute", right: "10%", bottom: "20%", width: 500, height: 500, background: `radial-gradient(circle, ${A}0a 0%, transparent 60%)` }} />
+        </div>
+
+        <div style={{ maxWidth: 860, width: "100%", zIndex: 1 }}>
+          {/* Back */}
+          <div onClick={() => setStep("select")} style={{ display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", color: "#555", fontSize: "0.75rem", marginBottom: 28 }}>
+            <ArrowLeft size={14} /> Back to Selection
+          </div>
+
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <h1 style={{ fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem,5vw,3rem)", textTransform: "uppercase", letterSpacing: "0.04em", color: "#f0f0f0", lineHeight: 1.1, margin: "0 0 10px" }}>
+              Your <span style={{ color: A }}>Buy Price</span>
+            </h1>
+            <p style={{ color: "#555", fontSize: "0.88rem", lineHeight: 1.6, maxWidth: 480, margin: "0 auto" }}>
+              Enter what you paid for each card — we'll show your live P&L in the dashboard.
+            </p>
+          </div>
+
+          {/* Per-player inputs */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 36 }}>
+            {selectedPlayers.map((pd, i) => {
+              const p = pd.player;
+              const val = buyPrices[p.slug] ?? "";
+              const paid = parseFloat(val.replace(/[^0-9.]/g, ""));
+              const hasPaid = !isNaN(paid) && paid > 0;
+              // Get last price from price_history
+              const hist = (pd as any).price_history as { date: string; price: number }[];
+              const cur = hist[hist.length - 1].price;
+              const gain = hasPaid ? cur - paid : null;
+              const pct = gain !== null ? ((gain / paid) * 100).toFixed(1) : null;
+              const gainColor = gain !== null ? (gain >= 0 ? "#22c55e" : "#ef4444") : A;
+              const PCOLORS = ["#ef4444", "#22d3ee", "#a78bfa", "#34d399", "#fb923c"];
+              const accentC = PCOLORS[i % 5];
+
+              return (
+                <div key={p.slug} style={{ background: `linear-gradient(135deg, rgba(10,10,10,0.9), rgba(6,6,6,0.95))`, border: `1px solid ${accentC}33`, borderRadius: 18, padding: "20px 24px", display: "grid", gridTemplateColumns: "72px 1fr auto", gap: 20, alignItems: "center", backdropFilter: "blur(12px)", animation: `fadeSlideUp 0.4s ease-out ${i * 0.08}s both` }}>
+                  {/* Avatar */}
+                  <div style={{ width: 72, height: 72, borderRadius: 12, overflow: "hidden", border: `2px solid ${accentC}66`, flexShrink: 0 }}>
+                    <img src={`/${p.slug === "allen" ? "JoshAllen.jpg" : p.slug === "burrow" ? "JoeBurrow.webp" : p.slug === "jackson" ? "LamarJackson.jpg" : p.slug === "herbert" ? "JustinHerbert.png" : "mahomes.png"}`} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                  </div>
+                  {/* Player info + input */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#f0f0f0", textTransform: "uppercase" }}>{p.name}</span>
+                      <span style={{ fontSize: "0.6rem", color: accentC, background: `${accentC}1a`, border: `1px solid ${accentC}33`, borderRadius: 4, padding: "1px 7px", fontFamily: "Oswald, sans-serif", fontWeight: 700 }}>Now ${cur.toLocaleString()}</span>
+                    </div>
+                    <div style={{ fontSize: "0.65rem", color: "#555", marginBottom: 10 }}>#{p.number} · {p.team} · {p.featuredCard}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ color: "#555", fontWeight: 700, fontSize: "1.1rem", fontFamily: "Oswald, sans-serif" }}>$</span>
+                      <input
+                        type="number" placeholder="What did you pay? (e.g. 9500)"
+                        value={val}
+                        onChange={e => setBuyPrices(prev => ({ ...prev, [p.slug]: e.target.value }))}
+                        style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${accentC}44`, borderRadius: 9, padding: "9px 14px", color: "#f0f0f0", fontSize: "0.95rem", fontWeight: 700, outline: "none", fontFamily: "Oswald, sans-serif", transition: "border-color 0.2s" }}
+                        onFocus={e => { e.currentTarget.style.borderColor = accentC; }}
+                        onBlur={e => { e.currentTarget.style.borderColor = `${accentC}44`; }}
+                      />
+                    </div>
+                  </div>
+                  {/* Live P&L preview */}
+                  <div style={{ textAlign: "right", minWidth: 90 }}>
+                    {gain !== null ? (
+                      <>
+                        <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 900, fontSize: "1.3rem", color: gainColor, lineHeight: 1 }}>
+                          {gain >= 0 ? "+" : "-"}${Math.abs(gain).toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: "0.6rem", color: gainColor, marginTop: 3, fontWeight: 700 }}>{gain >= 0 ? "+" : ""}{pct}% ROI</div>
+                        <div style={{ fontSize: "0.55rem", color: "#444", marginTop: 2 }}>{gain >= 0 ? "🟢 In Profit" : "🔴 In Loss"}</div>
+                      </>
+                    ) : (
+                      <div style={{ fontSize: "0.6rem", color: "#333", fontFamily: "Oswald, sans-serif" }}>ENTER PRICE</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Summary bar if any prices entered */}
+          {Object.keys(parsedPrices).length > 0 && (() => {
+            const totalPaid = Object.values(parsedPrices).reduce((s, v) => s + v, 0);
+            const totalCur = selectedPlayers.reduce((s, pd) => {
+              const hist = (pd as any).price_history as { price: number }[];
+              return s + hist[hist.length - 1].price;
+            }, 0);
+            const totalGain = totalCur - totalPaid;
+            const totalPct = ((totalGain / totalPaid) * 100).toFixed(1);
+            const isProfit = totalGain >= 0;
+            return (
+              <div style={{ background: `linear-gradient(135deg, ${isProfit ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)"}, rgba(6,6,6,0.9))`, border: `1px solid ${isProfit ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}`, borderRadius: 14, padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, backdropFilter: "blur(8px)" }}>
+                <div>
+                  <div style={{ fontSize: "0.6rem", color: "#555", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>Portfolio Summary</div>
+                  <div style={{ fontSize: "0.8rem", color: "#777" }}>Invested <strong style={{ color: "#f0f0f0" }}>${totalPaid.toLocaleString()}</strong> · Current <strong style={{ color: "#f0f0f0" }}>${totalCur.toLocaleString()}</strong></div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 900, fontSize: "1.8rem", color: isProfit ? "#22c55e" : "#ef4444", lineHeight: 1 }}>{isProfit ? "+" : "-"}${Math.abs(totalGain).toLocaleString()}</div>
+                  <div style={{ fontSize: "0.65rem", color: isProfit ? "#22c55e" : "#ef4444", fontWeight: 700 }}>{isProfit ? "+" : ""}{totalPct}% Total ROI</div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* CTA */}
+          <div style={{ display: "flex", gap: 12 }}>
+            <button onClick={() => { setBuyPrices({}); setShowPageFlash(true); setTimeout(() => { setShowPageFlash(false); setActivePlayer("all"); setStep("analytics"); }, 400); }}
+              style={{ flex: 1, padding: "14px 0", borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#555", fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer" }}>
+              Skip → Just Analytics
+            </button>
+            <button onClick={() => { setShowPageFlash(true); setTimeout(() => { setShowPageFlash(false); setActivePlayer("all"); setStep("analytics"); }, 400); }}
+              style={{ flex: 2, padding: "14px 0", borderRadius: 12, background: `linear-gradient(135deg, ${A}, ${AB})`, border: "none", color: "#fff", fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1rem", textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", boxShadow: `0 0 30px ${A}55`, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+              <Play size={16} fill="white" /> Launch Analytics
+            </button>
+          </div>
+        </div>
+        <style>{`@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      </div>
+    );
+  }
+
+
   // Always use the full dashboard. Single player = show that player's charts.
   // Multiple players = color-coded lines/dots per player.
   return (
@@ -472,11 +606,12 @@ export default function HomePage() {
       A={A}
       AB={AB}
       onBack={() => setStep("select")}
-      onNewRoster={() => { setStep("theme"); setSelected(new Set()); }}
+      onNewRoster={() => { setStep("theme"); setSelected(new Set()); setBuyPrices({}); }}
       vignette={t.vignette}
       themeName={t.name}
       themeGlow={t.glow}
       initialPlayer={selectedPlayers.length === 1 ? selectedPlayers[0].player.slug : "all"}
+      buyPrices={Object.fromEntries(Object.entries(buyPrices).map(([k, v]) => [k, parseFloat(v.replace(/[^0-9.]/g, ""))]).filter(([,v]) => !isNaN(v as number) && (v as number) > 0))}
     />
   );
 }

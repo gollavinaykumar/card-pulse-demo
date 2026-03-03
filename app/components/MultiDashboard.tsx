@@ -161,13 +161,51 @@ interface Props {
   themeName: string;
   themeGlow: string;
   initialPlayer?: string;
+  buyPrices?: Record<string, number>;
 }
 
-export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vignette, themeName, themeGlow, initialPlayer }: Props) {
+export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vignette, themeName, themeGlow, initialPlayer, buyPrices = {} }: Props) {
   const [activePlayer, setActivePlayer] = useState<string>(initialPlayer ?? "all");
   const [priceRange, setPriceRange] = useState<"7d"|"30d">("30d");
   const [showFlash, setShowFlash] = useState(true);
   React.useEffect(() => { const t = setTimeout(() => setShowFlash(false), 700); return () => clearTimeout(t); }, []);
+
+  // ── Live price simulation ──────────────────────────────────────
+  const initPrices = () => Object.fromEntries(
+    players.map(pd => {
+      const h = (pd as any).price_history as { price: number }[];
+      return [pd.player.slug, h[h.length - 1].price];
+    })
+  );
+  const [livePrices, setLivePrices] = useState<Record<string, number>>(initPrices);
+  const [priceDir, setPriceDir] = useState<Record<string, "up"|"down"|"">>({});
+
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setLivePrices(prev => {
+        const next = { ...prev };
+        const dirs: Record<string, "up"|"down"> = {};
+        players.forEach(pd => {
+          const slug = pd.player.slug;
+          // Status bias: fire/heating = slightly bullish, cooling = slightly bearish
+          const bias =
+            pd.player.status === "fire"    ?  0.30 :
+            pd.player.status === "heating" ?  0.15 :
+            pd.player.status === "cooling" ? -0.10 : 0;
+          const pct = (Math.random() * 0.45 + 0.10 + bias) * (Math.random() > 0.48 ? 1 : -1);
+          const delta = Math.round(prev[slug] * (pct / 100));
+          next[slug] = Math.max(prev[slug] + delta, 100);
+          dirs[slug] = delta >= 0 ? "up" : "down";
+        });
+        setPriceDir(dirs);
+        // Clear flash after 600ms
+        setTimeout(() => setPriceDir({}), 600);
+        return next;
+      });
+    }, 2500);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players]);
 
   // One unique color per player slot (up to 5)
   const PCOLORS = ["#ef4444", "#22d3ee", "#a78bfa", "#34d399", "#fb923c"];
@@ -237,7 +275,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
     { label: "TOP GRADE", value: players.reduce((b, pd) => pd.player.overallScore > b.player.overallScore ? pd : b).player.cardGrade, sub: players.reduce((b, pd) => pd.player.overallScore > b.player.overallScore ? pd : b).player.name, icon: Flame, color: "#fff", delta: "+" },
     { label: "HOT CARDS", value: String(players.filter(pd => pd.player.status === "fire" || pd.player.status === "heating").length), sub: "Fire / Heating", icon: TrendingUp, color: A, delta: "🔥" },
   ] : [
-    { label: "CURRENT PRICE", value: `$${lastPrice.toLocaleString()}`, sub: "PSA 9 · Last Sale", icon: DollarSign, color: A, delta: p.priceChange },
+    { label: "CURRENT PRICE", value: `$${(livePrices[p.slug] ?? lastPrice).toLocaleString()}`, sub: "PSA 9 · Live", icon: DollarSign, color: A, delta: p.priceChange },
     { label: "30D VOLUME", value: String(totalVol), sub: "Sales", icon: BarChart3, color: AB, delta: "+34%" },
     { label: "PRICE FLOOR", value: `$${Math.min(...singleHist.map(h => h.price)).toLocaleString()}`, sub: "30-day low", icon: TrendingUp, color: "#fff", delta: "+8.1%" },
     { label: "CARD GRADE", value: p.cardGrade, sub: `Score: ${p.overallScore}`, icon: Flame, color: A, delta: p.priceChange },
@@ -319,7 +357,16 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                       <div style={{ fontSize: "0.6rem", color: "#555" }}>{pd.player.team} · #{pd.player.number}</div>
                       <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
                         <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: `${PCOLORS[i]}1a`, color: PCOLORS[i], border: `1px solid ${PCOLORS[i]}33` }}>{pd.player.priceChange}</span>
-                        <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "rgba(255,255,255,0.04)", color: "#888" }}>SCORE {pd.player.overallScore}</span>
+                        {/* Live price with flash */}
+                        <span style={{ fontSize: "0.55rem", fontWeight: 800, padding: "1px 6px", borderRadius: 4,
+                          background: priceDir[pd.player.slug] === "up" ? "rgba(34,197,94,0.15)" : priceDir[pd.player.slug] === "down" ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.04)",
+                          color: priceDir[pd.player.slug] === "up" ? "#22c55e" : priceDir[pd.player.slug] === "down" ? "#ef4444" : "#888",
+                          transition: "background 0.3s, color 0.3s",
+                          fontFamily: "Oswald, sans-serif",
+                        }}>
+                          {priceDir[pd.player.slug] === "up" ? "▲ " : priceDir[pd.player.slug] === "down" ? "▼ " : ""}
+                          ${(livePrices[pd.player.slug] ?? 0).toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -349,12 +396,29 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                 <p style={{ color: "#555", fontSize: "0.78rem", marginTop: 4 }}>#{p.number} · {p.team} · {p.featuredCard}</p></div>
               <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)` }} />
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                {[{ l: "LAST SALE", v: `$${lastPrice.toLocaleString()}` }, { l: "30D HIGH", v: `$${Math.max(...singleHist.map(h => h.price)).toLocaleString()}` }, { l: "30D LOW", v: `$${Math.min(...singleHist.map(h => h.price)).toLocaleString()}` }, { l: "VOLUME", v: `${totalVol} sales` }].map(s => (
-                  <div key={s.l} style={{ background: `${A}0d`, border: `1px solid ${A}1f`, borderRadius: 10, padding: "6px 12px" }}>
-                    <div style={{ fontSize: "0.52rem", color: A, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, fontFamily: "Oswald, sans-serif" }}>{s.l}</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#f0f0f0", marginTop: 1 }}>{s.v}</div>
-                  </div>
-                ))}
+                {[
+                  { l: "LIVE PRICE",  v: (livePrices[p.slug] ?? lastPrice), isLive: true },
+                  { l: "30D HIGH",    v: Math.max(...singleHist.map(h => h.price)) },
+                  { l: "30D LOW",     v: Math.min(...singleHist.map(h => h.price)) },
+                  { l: "VOLUME",      v: null, vStr: `${totalVol} sales` },
+                ].map(s => {
+                  const dir = s.isLive ? (priceDir[p.slug] ?? "") : "";
+                  return (
+                  <div key={s.l} style={{ background: `${A}0d`, border: `1px solid ${A}1f`, borderRadius: 10, padding: "6px 12px", position: "relative", overflow: "hidden", transition: "background 0.2s",
+                    ...(dir === "up" ? { background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.3)" } : dir === "down" ? { background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.3)" } : {})
+                  }}>
+                    <div style={{ fontSize: "0.52rem", color: A, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, fontFamily: "Oswald, sans-serif", display: "flex", alignItems: "center", gap: 4 }}>
+                      {s.l}
+                      {s.isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 5px #22c55e", animation: "flicker 1.5s ease-in-out infinite", display: "inline-block" }} />}
+                    </div>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, fontFamily: "Oswald, sans-serif", marginTop: 1,
+                      color: dir === "up" ? "#22c55e" : dir === "down" ? "#ef4444" : "#f0f0f0",
+                      transition: "color 0.3s ease"
+                    }}>
+                      {s.vStr ? s.vStr : `${dir === "up" ? "▲ " : dir === "down" ? "▼ " : ""}$${s.v!.toLocaleString()}`}
+                    </div>
+                  </div>);
+                })}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: `${A}0f`, border: `1px solid ${A}26`, borderRadius: 9, padding: "7px 12px" }}>
                 <Zap size={13} color={A} />
@@ -381,6 +445,117 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             );
           })}
         </div>
+
+        {/* ── PORTFOLIO P&L ANALYTICS (only if buy prices entered) ── */}
+        {Object.keys(buyPrices).length > 0 && (() => {
+          // Scope to active player when one is selected, otherwise all players
+          const plSource = isAll ? players : [ap];
+          // Per-player P&L calculations
+          const plData = plSource.map((pd, i) => {
+            const hist = (pd as any).price_history as { price: number }[];
+            const cur = livePrices[pd.player.slug] ?? hist[hist.length - 1].price;
+            const paid = buyPrices[pd.player.slug];
+            const gain = paid ? cur - paid : null;
+            const pct = paid ? ((( cur - paid) / paid) * 100) : null;
+            // Daily velocity: last 7d price diff / 7
+            const weekAgo = hist[hist.length - 7]?.price ?? hist[0].price;
+            const dailyVelocity = (cur - weekAgo) / 7;
+            return { pd, cur, paid: paid ?? null, gain, pct, i, dailyVelocity, color: PCOLORS[i] };
+          });
+          const withPaid = plData.filter(d => d.paid !== null);
+          const totalPaid = withPaid.reduce((s, d) => s + d.paid!, 0);
+          const totalCur = withPaid.reduce((s, d) => s + d.cur, 0);
+          const totalGain = totalCur - totalPaid;
+          const totalPct = totalPaid ? ((totalGain / totalPaid) * 100).toFixed(1) : "0.0";
+          const isPortfolioProfit = totalGain >= 0;
+          const portfolioGainColor = isPortfolioProfit ? "#22c55e" : "#ef4444";
+          const best = withPaid.reduce((a, b) => ((a.pct ?? -Infinity) > (b.pct ?? -Infinity) ? a : b), withPaid[0]);
+          const worst = withPaid.reduce((a, b) => ((a.pct ?? Infinity) < (b.pct ?? Infinity) ? a : b), withPaid[0]);
+          const maxAbsPct = Math.max(...withPaid.map(d => Math.abs(d.pct ?? 0)), 1);
+
+          return (
+            <div className="animate-fade-up-delay-2" style={{ ...C, border: `1px solid ${portfolioGainColor}22` }}>
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+                <div>
+                  <p style={{ fontSize: "0.62rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>PORTFOLIO RETURNS</p>
+                  <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.15rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>YOUR P&amp;L DASHBOARD</h2>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 900, fontSize: "2rem", color: portfolioGainColor, lineHeight: 1 }}>
+                    {isPortfolioProfit ? "+" : "-"}${Math.abs(totalGain).toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: portfolioGainColor, fontWeight: 700 }}>{isPortfolioProfit ? "+" : ""}{totalPct}% Total ROI</div>
+                </div>
+              </div>
+
+              {/* Summary strip */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 22 }}>
+                {[
+                  { label: "TOTAL INVESTED", value: `$${totalPaid.toLocaleString()}`, color: "#888" },
+                  { label: "CURRENT VALUE", value: `$${totalCur.toLocaleString()}`, color: A },
+                  { label: "UNREALISED GAIN", value: `${isPortfolioProfit ? "+" : "-"}$${Math.abs(totalGain).toLocaleString()}`, color: portfolioGainColor },
+                ].map(s => (
+                  <div key={s.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px" }}>
+                    <div style={{ fontSize: "0.5rem", color: "#444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: s.color }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Per-player gain bars */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: "0.55rem", color: "#444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>PER-PLAYER BREAKDOWN</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {plData.map(d => {
+                    const gc = d.gain !== null ? (d.gain >= 0 ? "#22c55e" : "#ef4444") : "#444";
+                    const barPct = d.pct !== null ? Math.abs(d.pct) / maxAbsPct * 100 : 0;
+                    return (
+                      <div key={d.pd.player.slug}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <div style={{ width: 8, height: 8, borderRadius: "50%", background: d.color, boxShadow: `0 0 6px ${d.color}` }} />
+                            <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.78rem", color: "#f0f0f0", textTransform: "uppercase" }}>{d.pd.player.name}</span>
+                            {d.paid && <span style={{ fontSize: "0.55rem", color: "#555" }}>paid ${d.paid.toLocaleString()} · now ${d.cur.toLocaleString()}</span>}
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            {d.gain !== null ? (
+                              <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "0.88rem", color: gc }}>
+                                {d.gain >= 0 ? "+" : "-"}${Math.abs(d.gain).toLocaleString()} <span style={{ fontSize: "0.65rem" }}>({d.gain >= 0 ? "+" : ""}{d.pct!.toFixed(1)}%)</span>
+                              </span>
+                            ) : <span style={{ fontSize: "0.6rem", color: "#333", fontFamily: "Oswald, sans-serif" }}>No buy price</span>}
+                          </div>
+                        </div>
+                        {/* Bar */}
+                        <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 99, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${barPct}%`, background: `linear-gradient(90deg, ${gc}88, ${gc})`, borderRadius: 99, transition: "width 0.8s cubic-bezier(0.4,0,0.2,1)", boxShadow: `0 0 8px ${gc}66` }} />
+                        </div>
+                        {/* Daily velocity */}
+                        {d.paid && <div style={{ fontSize: "0.52rem", color: "#444", marginTop: 3 }}>7-day avg: {d.dailyVelocity >= 0 ? "+" : "-"}${Math.abs(d.dailyVelocity).toFixed(0)}/day · At this rate, {d.dailyVelocity > 0 ? `doubles in ${Math.round(d.cur / d.dailyVelocity)} days` : d.dailyVelocity < 0 ? `hits breakeven in ${Math.round((d.cur - d.paid) / Math.abs(d.dailyVelocity))} days` : "steady"}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Best / Worst */}
+              {withPaid.length > 1 && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 10, padding: "12px 16px" }}>
+                    <div style={{ fontSize: "0.52rem", color: "#22c55e", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>🏆 Best Performer</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#f0f0f0" }}>{best.pd.player.name}</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#22c55e" }}>{best.pct! >= 0 ? "+" : ""}{best.pct!.toFixed(1)}%</div>
+                  </div>
+                  <div style={{ background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, padding: "12px 16px" }}>
+                    <div style={{ fontSize: "0.52rem", color: "#ef4444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>📉 Needs Watch</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#f0f0f0" }}>{worst.pd.player.name}</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#ef4444" }}>{worst.pct! >= 0 ? "+" : ""}{worst.pct!.toFixed(1)}%</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* TWO COLUMNS */}
         <div className="md-two-col">
