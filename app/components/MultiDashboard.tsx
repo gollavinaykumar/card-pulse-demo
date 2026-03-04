@@ -269,6 +269,14 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
   const totalVol = singleHist.reduce((a, b) => a + b.volume, 0);
   const gradeColors = [A, AB, "#6b7280", "#4b5563", "#374151"];
 
+  // 21D avg price
+  const last21 = singleHist.slice(-21);
+  const avg21d = Math.round(last21.reduce((s, h) => s + h.price, 0) / last21.length);
+  // Volume spike detection: last 3d avg vs 30d avg
+  const last3dVol = singleHist.slice(-3).reduce((s, h) => s + h.volume, 0) / 3;
+  const avg30dVol = totalVol / singleHist.length;
+  const isVolSpike = last3dVol > avg30dVol * 1.5;
+
   const dashKpis = isAll ? [
     { label: "ROSTER SIZE", value: String(players.length), sub: "Selected Players", icon: Signal, color: A, delta: `+${players.length}` },
     { label: "AVG SCORE", value: String(Math.round(players.reduce((s, pd) => s + pd.player.overallScore, 0) / players.length)), sub: "Overall Avg", icon: BarChart3, color: AB, delta: "+12%" },
@@ -380,11 +388,75 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
           <div className="animate-fade-up md-hero-single" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
             <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
             <div style={{ display: "flex", alignItems: "center", zIndex: 1 }}>
-              <div className="card-slab-wrap">
-                <div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
-                <div className="card-slab-frame" style={{ boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
-                  <img src={cardImage} alt={p.name} className="md-hero-card-img" />
+              {/* 3D Rotating Card — alias.org style */}
+              <div className="card-3d-scene" style={{ width: 200, height: 280 }}>
+                <div className="card-3d-float" style={{ width: "100%", height: "100%" }}>
+                  <div className="card-3d-rotate" style={{ animationDuration: "10s", width: "100%", height: "100%", position: "relative" }}>
+                    {/* FRONT FACE — Player image */}
+                    <div className="card-3d-face" style={{ position: "absolute", inset: 0, borderRadius: 10, overflow: "hidden" }}>
+                      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                        <div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
+                        <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
+                          <img src={cardImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }} />
+                        </div>
+                      </div>
+                    </div>
+                    {/* BACK FACE — Premium card back */}
+                    <div className="card-3d-face" style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", borderRadius: 10, overflow: "hidden" }}>
+                      <div style={{
+                        width: "100%", height: "100%",
+                        background: "linear-gradient(160deg, #0a0a0a 0%, #111 40%, #0d0d0d 100%)",
+                        border: `2px solid ${A}44`,
+                        borderRadius: 10,
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                        padding: "16px 14px", gap: 8, position: "relative", overflow: "hidden",
+                        boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)`,
+                      }}>
+                        {/* Inner border accent */}
+                        <div style={{ position: "absolute", inset: 6, border: `1px solid ${A}22`, borderRadius: 6, pointerEvents: "none" }} />
+                        {/* Top accent line */}
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${A}, transparent)` }} />
+                        {/* Grade badge */}
+                        <div style={{
+                          width: 48, height: 48, borderRadius: "50%",
+                          background: `linear-gradient(145deg, ${A}33, ${A}11)`,
+                          border: `2px solid ${A}88`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          boxShadow: `0 0 20px ${A}44`,
+                        }}>
+                          <span className="digital-value" style={{ fontSize: "1rem", color: "#f0f0f0", textShadow: `0 0 12px ${A}88` }}>{p.cardGrade}</span>
+                        </div>
+                        {/* Auth label */}
+                        <div className="stat-label-mono" style={{ fontSize: "0.5rem", color: A, letterSpacing: "0.2em" }}>AUTHENTICATED</div>
+                        {/* Player name */}
+                        <div style={{ fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "0.78rem", color: "#e0e0e0", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", lineHeight: 1.2 }}>
+                          {p.name}
+                        </div>
+                        {/* Card details */}
+                        <div className="stat-label-mono" style={{ fontSize: "0.38rem", color: "#444", textAlign: "center", lineHeight: 1.5 }}>
+                          {p.featuredCard}<br/>#{p.number} · {p.team}
+                        </div>
+                        {/* Score bar */}
+                        <div style={{ width: "65%", height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: `${p.overallScore}%`, height: "100%", background: `linear-gradient(90deg, ${A}, ${A}88)`, borderRadius: 2 }} />
+                        </div>
+                        <div className="digital-value" style={{ fontSize: "0.48rem", color: "#555", textShadow: "none" }}>
+                          SCORE {p.overallScore}/100
+                        </div>
+                        {/* Auth pattern */}
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 1.5, opacity: 0.12, marginTop: 2 }}>
+                          {Array.from({ length: 32 }).map((_, i) => (
+                            <div key={i} style={{ width: 3.5, height: 3.5, background: i % 3 === 0 ? A : "#fff", borderRadius: 1 }} />
+                          ))}
+                        </div>
+                        {/* Bottom accent */}
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${A}66, transparent)` }} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                {/* Ground shadow */}
+                <div className="card-3d-shadow" />
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, zIndex: 1 }}>
@@ -395,34 +467,46 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
               <div><h1 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem,4vw,3rem)", color: "#f0f0f0", margin: 0, textTransform: "uppercase" }}>{p.name.split(" ")[0]} <span style={{ color: A }}>{p.name.split(" ").slice(1).join(" ").toUpperCase()}</span></h1>
                 <p style={{ color: "#555", fontSize: "0.78rem", marginTop: 4 }}>#{p.number} · {p.team} · {p.featuredCard}</p></div>
               <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)` }} />
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: 8 }}>
                 {[
                   { l: "LIVE PRICE",  v: (livePrices[p.slug] ?? lastPrice), isLive: true },
                   { l: "30D HIGH",    v: Math.max(...singleHist.map(h => h.price)) },
                   { l: "30D LOW",     v: Math.min(...singleHist.map(h => h.price)) },
-                  { l: "VOLUME",      v: null, vStr: `${totalVol} sales` },
+                  { l: "21D AVG",     v: avg21d },
+                  { l: "VOLUME",      v: null, vStr: `${totalVol}` },
+                  { l: "VOL SPIKE",   v: null, vStr: isVolSpike ? "▲ SPIKE" : "NORMAL", isSpike: isVolSpike },
                 ].map(s => {
-                  const dir = s.isLive ? (priceDir[p.slug] ?? "") : "";
+                  const dir = (s as any).isLive ? (priceDir[p.slug] ?? "") : "";
+                  const spikeColor = (s as any).isSpike ? A : undefined;
                   return (
-                  <div key={s.l} style={{ background: `${A}0d`, border: `1px solid ${A}1f`, borderRadius: 10, padding: "6px 12px", position: "relative", overflow: "hidden", transition: "background 0.2s",
-                    ...(dir === "up" ? { background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.3)" } : dir === "down" ? { background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.3)" } : {})
-                  }}>
-                    <div style={{ fontSize: "0.52rem", color: A, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, fontFamily: "Oswald, sans-serif", display: "flex", alignItems: "center", gap: 4 }}>
+                  <div key={s.l} className="digital-tile" style={{ '--accent': dir === 'up' ? '#22c55e' : dir === 'down' ? '#ef4444' : spikeColor || A, transition: "all 0.3s ease" } as React.CSSProperties}>
+                    <div className="stat-label-mono" style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>
                       {s.l}
-                      {s.isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 5px #22c55e", animation: "flicker 1.5s ease-in-out infinite", display: "inline-block" }} />}
+                      {(s as any).isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 5px #22c55e", animation: "flicker 1.5s ease-in-out infinite", display: "inline-block" }} />}
                     </div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, fontFamily: "Oswald, sans-serif", marginTop: 1,
-                      color: dir === "up" ? "#22c55e" : dir === "down" ? "#ef4444" : "#f0f0f0",
-                      transition: "color 0.3s ease"
+                    <div className="digital-value" style={{ fontSize: "0.95rem",
+                      color: dir === "up" ? "#22c55e" : dir === "down" ? "#ef4444" : (s as any).isSpike ? A : "#f0f0f0",
+                      textShadow: dir === "up" ? '0 0 10px rgba(34,197,94,0.5)' : dir === "down" ? '0 0 10px rgba(239,68,68,0.5)' : (s as any).isSpike ? `0 0 10px ${A}55` : `0 0 8px ${A}33`,
                     }}>
-                      {s.vStr ? s.vStr : `${dir === "up" ? "▲ " : dir === "down" ? "▼ " : ""}$${s.v!.toLocaleString()}`}
+                      {s.vStr ? s.vStr : `${dir === "up" ? "▲" : dir === "down" ? "▼" : ""}$${s.v!.toLocaleString()}`}
                     </div>
                   </div>);
                 })}
               </div>
+              {/* Milestones */}
+              {(ap as any).awards && (ap as any).awards.length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  <span className="stat-label-mono" style={{ color: A, marginRight: 4 }}>MILESTONES</span>
+                  {(ap as any).awards.map((aw: {year: number; award: string; icon: string}, ai: number) => (
+                    <span key={ai} className="milestone-tag" style={{ '--accent': A } as React.CSSProperties}>
+                      <span className="milestone-year">{aw.year}</span> {aw.icon} {aw.award}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: `${A}0f`, border: `1px solid ${A}26`, borderRadius: 9, padding: "7px 12px" }}>
                 <Zap size={13} color={A} />
-                <span style={{ fontSize: "0.72rem", color: "#777" }}><strong style={{ color: A }}>AI SIGNAL:</strong> Card Grade: {p.cardGrade} · Overall Score: {p.overallScore}/100</span>
+                <span className="digital-value" style={{ fontSize: "0.72rem", color: "#777" }}><strong style={{ color: A }}>OUR TAKE:</strong> Grade {p.cardGrade} · Score {p.overallScore}/100</span>
               </div>
             </div>
           </div>
@@ -438,9 +522,9 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: `${kpi.color}14`, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${kpi.color}25` }}><Icon size={16} color={kpi.color} strokeWidth={2} /></div>
                   <div style={{ display: "flex", alignItems: "center", gap: 3 }}><ArrowUpRight size={12} color={A} /><span style={{ fontSize: "0.68rem", fontWeight: 700, color: A }}>{kpi.delta}</span></div>
                 </div>
-                <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#f0f0f0", lineHeight: 1, fontFamily: "Oswald, sans-serif" }}>{kpi.value}</div>
-                <div style={{ fontSize: "0.62rem", color: A, marginTop: 4, fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase" }}>{kpi.label}</div>
-                <div style={{ fontSize: "0.58rem", color: "#444", marginTop: 2 }}>{kpi.sub}</div>
+                <div className="digital-value" style={{ fontSize: "1.5rem", color: "#f0f0f0", textShadow: `0 0 12px ${kpi.color}55, 0 0 30px ${kpi.color}1a` }}>{kpi.value}</div>
+                <div className="stat-label-mono" style={{ color: A, marginTop: 4 }}>{kpi.label}</div>
+                <div style={{ fontSize: "0.52rem", color: "#444", marginTop: 2, fontFamily: "var(--font-digital), monospace" }}>{kpi.sub}</div>
               </div>
             );
           })}
@@ -678,7 +762,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                       </div>
                       <p style={{ fontSize: "0.76rem", fontWeight: 700, color: "#e0e0e0", margin: "0 0 2px" }}>{ev.title}</p>
                       <p style={{ fontSize: "0.7rem", color: "#555", lineHeight: 1.5, margin: 0 }}>{ev.body}</p>
-                      <p style={{ fontSize: "0.56rem", color: "#333", margin: "4px 0 0" }}><Clock size={9} style={{ verticalAlign: "middle", display: "inline", marginRight: 3 }} />{formatTimestamp(ev.ts)}</p>
+                      <p style={{ fontSize: "0.56rem", color: "#333", margin: "4px 0 0", fontFamily: "var(--font-digital), monospace", letterSpacing: "0.04em" }}><Clock size={9} style={{ verticalAlign: "middle", display: "inline", marginRight: 3 }} />{formatTimestamp(ev.ts)}</p>
                     </div>
                   </div>
                 ))}

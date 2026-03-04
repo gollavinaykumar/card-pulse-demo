@@ -59,13 +59,14 @@ function buildTickerItems(players: PlayerData[]) {
   }));
 }
 
-// ── KPI block ─────────────────────────────────────────────────────
-function KPIBlock({ label, value, sub }: { label: string; value: string; sub?: string }) {
+// ── KPI block (digital readout) ───────────────────────────────────
+function KPIBlock({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: string }) {
+  const a = accent || "#dc2626";
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: "0.5rem", color: "#666", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
-      <div style={{ fontSize: "1.3rem", fontWeight: 900, color: "#f0f0f0", fontFamily: "Oswald, sans-serif", lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: "0.52rem", color: "#555", marginTop: 2 }}>{sub}</div>}
+    <div className="digital-tile" style={{ flex: 1, minWidth: 0, '--accent': a } as React.CSSProperties}>
+      <div className="stat-label-mono" style={{ marginBottom: 4 }}>{label}</div>
+      <div className="digital-value" style={{ fontSize: "1.3rem", fontWeight: 400, color: "#f0f0f0", textShadow: `0 0 10px ${a}44, 0 0 30px ${a}18` }}>{value}</div>
+      {sub && <div style={{ fontSize: "0.48rem", color: "#444", marginTop: 3, fontFamily: "var(--font-digital), monospace", letterSpacing: "0.06em" }}>{sub}</div>}
     </div>
   );
 }
@@ -393,7 +394,7 @@ export default function HomePage() {
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, #050505 10%, transparent 100%)" }} />
                     {/* Status glow on image for fire/heating */}
                     {(isFire || isHeating) && (
-                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: isFire ? "linear-gradient(to top, rgba(239,68,68,0.25), transparent)" : "linear-gradient(to top, rgba(245,158,11,0.2), transparent)", pointerEvents: "none", zIndex: 3 }} />
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: isFire ? "linear-gradient(to top, rgba(239,68,68,0.25), transparent)" : "linear-gradient(to top, rgba(239,68,68,0.15), transparent)", pointerEvents: "none", zIndex: 3 }} />
                     )}
                   </div>
 
@@ -407,8 +408,8 @@ export default function HomePage() {
                     </h3>
                     <p style={{ color: "#555", fontSize: "0.7rem", margin: "0 0 10px" }}>#{p.number} · {p.team} · {p.position}</p>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-                      <span style={{ fontSize: "0.58rem", fontWeight: 700, padding: "2px 7px", borderRadius: 5, background: `${A}1a`, color: A, border: `1px solid ${A}33`, fontFamily: "Oswald, sans-serif" }}>{p.priceChange}</span>
-                      <span style={{ fontSize: "0.58rem", fontWeight: 700, padding: "2px 7px", borderRadius: 5, background: "rgba(255,255,255,0.04)", color: "#888", fontFamily: "Oswald, sans-serif" }}>SCORE {p.overallScore}</span>
+                      <span className="digital-value" style={{ fontSize: "0.62rem", padding: "3px 9px", borderRadius: 5, background: `${A}1a`, color: A, border: `1px solid ${A}33`, textShadow: `0 0 8px ${A}55` }}>{p.priceChange}</span>
+                      <span className="digital-value" style={{ fontSize: "0.62rem", padding: "3px 9px", borderRadius: 5, background: "rgba(255,255,255,0.04)", color: "#888", border: "1px solid rgba(255,255,255,0.06)" }}>{p.overallScore}<span style={{ fontSize: "0.48rem", color: "#555", marginLeft: 3 }}>/ 100</span></span>
                     </div>
                     <button style={{ width: "100%", padding: "10px 0", borderRadius: 10, fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", border: isSelected ? `1px solid ${A}80` : "1px solid rgba(255,255,255,0.1)", background: isSelected ? `${A}33` : "rgba(255,255,255,0.04)", color: isSelected ? AB : "#888", transition: "all 0.25s" }}>
                       {isSelected ? "✓ Selected" : "Select"}
