@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ScatterChart, Scatter, ZAxis, LineChart, Line,
   ComposedChart, Bar, Cell,
 } from "recharts";
-import { Signal, Bell, TrendingUp, Flame, DollarSign, BarChart3, ArrowUpRight, Clock, Eye, Zap } from "lucide-react";
+import { Signal, Bell, TrendingUp, Flame, DollarSign, BarChart3, ArrowUpRight, ArrowLeft, Clock, Eye, Zap, ChevronRight } from "lucide-react";
 import { statusLabel, statusBadgeClass, timeAgo, newsTypeLabel, formatTimestamp, type PlayerData } from "@/lib/playerUtils";
 
 const CARDS_MAP: Record<string, string> = {
@@ -168,6 +168,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
   const [activePlayer, setActivePlayer] = useState<string>(initialPlayer ?? "all");
   const [priceRange, setPriceRange] = useState<"7d"|"30d">("30d");
   const [showFlash, setShowFlash] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   React.useEffect(() => { const t = setTimeout(() => setShowFlash(false), 700); return () => clearTimeout(t); }, []);
 
   // ── Live price simulation ──────────────────────────────────────
@@ -748,7 +749,13 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 {ap.news_feed.map((ev, i) => (
-                  <div key={ev.id} style={{ display: "flex", gap: 12, position: "relative" }}>
+                  <div
+                    key={ev.id}
+                    style={{ display: "flex", gap: 12, position: "relative", cursor: "pointer", borderRadius: 8, padding: "4px 4px 4px 0", transition: "background 0.2s" }}
+                    onClick={() => setSelectedEvent(ev)}
+                    onMouseEnter={e => { e.currentTarget.style.background = `${A}0a`; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: 20 }}>
                       <div style={{ width: 10, height: 10, borderRadius: 99, background: ev.type === "signal" || ev.type === "price" ? A : "#555", boxShadow: ev.type === "signal" ? `0 0 8px ${A}88` : "none", zIndex: 1 }} />
                       {i < ap.news_feed.length - 1 && <div style={{ width: 1.5, flex: 1, background: `${A}1a`, marginTop: 2 }} />}
@@ -762,7 +769,10 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                       </div>
                       <p style={{ fontSize: "0.76rem", fontWeight: 700, color: "#e0e0e0", margin: "0 0 2px" }}>{ev.title}</p>
                       <p style={{ fontSize: "0.7rem", color: "#555", lineHeight: 1.5, margin: 0 }}>{ev.body}</p>
-                      <p style={{ fontSize: "0.56rem", color: "#333", margin: "4px 0 0", fontFamily: "var(--font-digital), monospace", letterSpacing: "0.04em" }}><Clock size={9} style={{ verticalAlign: "middle", display: "inline", marginRight: 3 }} />{formatTimestamp(ev.ts)}</p>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                        <p style={{ fontSize: "0.56rem", color: "#333", margin: 0, fontFamily: "var(--font-digital), monospace", letterSpacing: "0.04em" }}><Clock size={9} style={{ verticalAlign: "middle", display: "inline", marginRight: 3 }} />{formatTimestamp(ev.ts)}</p>
+                        <span style={{ fontSize: "0.5rem", color: `${A}88`, display: "flex", alignItems: "center", gap: 2 }}>Details <ChevronRight size={10} /></span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -830,6 +840,132 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
           <p style={{ color: "#333", fontSize: "0.62rem", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase" }}>CARDPULSE ANALYTICS · DEMO V2.0</p>
         </div>
       </div>
+
+      {/* ═══ EVENT DETAIL OVERLAY ═══ */}
+      {selectedEvent && (() => {
+        const ev = selectedEvent;
+        const typeIcon = ev.type === "signal" ? <Signal size={18} /> : ev.type === "price" ? <DollarSign size={18} /> : ev.type === "game" ? <Flame size={18} /> : <TrendingUp size={18} />;
+        const typeLabel = newsTypeLabel(ev.type);
+
+        // Extended content based on event type
+        const extSections = ev.type === "price" ? [
+          { label: "MARKET INSIGHT", icon: <BarChart3 size={14} color={A} />, content: `This price movement reflects growing collector confidence. When key threshold prices hold firm for multiple consecutive sessions, it typically signals reduced sell-side pressure and strong institutional-level accumulation. The current bid-ask spread has tightened, which often precedes a breakout to new highs.` },
+          { label: "WHAT THIS MEANS", icon: <TrendingUp size={14} color={A} />, content: `For holders, this is a strong validation signal. Price floors establish new baselines that future pullbacks tend to respect. Historical data shows that once a PSA-graded card holds a new price floor for 5+ consecutive days, the probability of a sustained move higher exceeds 72%.` },
+          { label: "KEY TAKEAWAY", icon: <Eye size={14} color={A} />, content: `Current market conditions favor accumulation at these levels. Volume patterns suggest smart money is positioning ahead of potential catalysts. Consider this a high-conviction hold zone with asymmetric upside potential.` },
+        ] : ev.type === "signal" ? [
+          { label: "MOMENTUM ANALYSIS", icon: <BarChart3 size={14} color={A} />, content: `Volume surges of this magnitude typically precede sustained price appreciation. When transaction velocity increases by 40%+ while prices hold or rise, it indicates genuine demand rather than speculative froth. This pattern has historically led to 15-25% price appreciation within 30 days.` },
+          { label: "SUPPLY & DEMAND", icon: <TrendingUp size={14} color={A} />, content: `The supply side is thinning — fewer sellers are willing to part with their holdings at current prices. This creates a supply squeeze dynamic where even moderate buying pressure can drive disproportionate price moves. Population reports show the total certified population remains stable, meaning no new supply influx is expected.` },
+          { label: "OUR TAKE", icon: <Zap size={14} color={A} />, content: `This is a high-conviction momentum signal. The combination of rising volume, tightening supply, and positive sentiment creates an environment where significant upside is probable. We recommend maintaining positions and considering selective additions on any short-term dips.` },
+        ] : ev.type === "game" ? [
+          { label: "PERFORMANCE BREAKDOWN", icon: <BarChart3 size={14} color={A} />, content: `Elite-level performance with high efficiency metrics across the board. Completion percentage, yards per attempt, and passer rating all exceed season averages for this game. Zero turnovers adds a floor of safety to the investment thesis, as consistent play underpins long-term card value stability.` },
+          { label: "CARD MARKET IMPACT", icon: <DollarSign size={14} color={A} />, content: `On-field performance directly correlates with card market activity. Top-tier stat lines typically generate a 3-7% bump in transaction volume within 48 hours. Sustained elite performance across 3+ consecutive games can trigger institutional-level buying and establish new price channels.` },
+          { label: "SEASONAL OUTLOOK", icon: <Eye size={14} color={A} />, content: `Current trajectory projects a top-tier finish for the season. Historical data shows that QBs who maintain this performance level through the back half of the season see their premium card prices appreciate 20-35% into the playoff period. This is a strong hold signal.` },
+        ] : [
+          { label: "EXPERT ANALYSIS", icon: <BarChart3 size={14} color={A} />, content: `This insight reflects the consensus view among professional card market analysts. The long-term hold classification is assigned to assets with demonstrated resilience across market cycles, strong fundamentals, and significant brand value that transcends short-term market fluctuations.` },
+          { label: "INVESTMENT THESIS", icon: <TrendingUp size={14} color={A} />, content: `Dynasty-level assets occupy a unique position in the sports card market. Unlike speculative plays, these holdings benefit from compounding narrative value — each additional achievement adds permanent value to the asset's floor price. The risk/reward profile strongly favors long-term holders.` },
+          { label: "STRATEGIC VIEW", icon: <Eye size={14} color={A} />, content: `We recommend a core-holding approach for this asset. Tactical additions on dips of 10%+ represent high-value entry points. The probability of this asset's value declining below its current 52-week low is estimated at less than 8%, making it one of the lowest-risk holdings in the sports card universe.` },
+        ];
+
+        return (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 200,
+            background: "rgba(2,2,2,0.96)",
+            backdropFilter: "blur(20px)",
+            overflowY: "auto",
+            animation: "fadeSlideUp 0.35s ease-out both",
+          }}>
+            {/* Top bar */}
+            <div style={{ position: "sticky", top: 0, zIndex: 10, background: "linear-gradient(to bottom, rgba(5,5,5,0.98) 70%, transparent)", padding: "16px 24px 24px", display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                onClick={() => setSelectedEvent(null)}
+                style={{ display: "flex", alignItems: "center", gap: 6, background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 10, padding: "8px 16px", cursor: "pointer", color: A, fontSize: "0.75rem", fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", textTransform: "uppercase", transition: "all 0.2s" }}
+                onMouseEnter={e => { e.currentTarget.style.background = `${A}2a`; }}
+                onMouseLeave={e => { e.currentTarget.style.background = `${A}14`; }}
+              >
+                <ArrowLeft size={16} /> Back
+              </button>
+              <div style={{ flex: 1 }} />
+              <span style={{ fontSize: "0.5rem", color: "#333", fontFamily: "var(--font-digital), monospace", letterSpacing: "0.1em" }}>EVENT DETAIL</span>
+            </div>
+
+            {/* Content */}
+            <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px 60px" }}>
+              {/* Event type & tag badges */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 8, padding: "6px 14px", color: A }}>
+                  {typeIcon}
+                  <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "Oswald, sans-serif" }}>{typeLabel}</span>
+                </div>
+                {ev.tag && (
+                  <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 6, background: `${A}22`, color: A, border: `1px solid ${A}55`, fontFamily: "Oswald, sans-serif" }}>{ev.tag}</span>
+                )}
+                <span className="digital-value" style={{ fontSize: "0.6rem", color: "#444", marginLeft: "auto" }}>
+                  <Clock size={11} style={{ verticalAlign: "middle", display: "inline", marginRight: 4 }} />
+                  {formatTimestamp(ev.ts)}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h1 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "clamp(1.5rem, 4vw, 2.4rem)", color: "#f0f0f0", margin: "0 0 8px", textTransform: "uppercase", lineHeight: 1.15 }}>
+                {ev.title}
+              </h1>
+
+              {/* Accent divider */}
+              <div style={{ height: 3, width: 80, background: `linear-gradient(90deg, ${A}, transparent)`, borderRadius: 2, marginBottom: 20 }} />
+
+              {/* Player context */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "12px 16px" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 8, overflow: "hidden", border: `2px solid ${A}55`, flexShrink: 0 }}>
+                  <img src={cardImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                <div>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "#e0e0e0", textTransform: "uppercase" }}>{p.name}</div>
+                  <div style={{ fontSize: "0.6rem", color: "#444" }}>#{p.number} · {p.team} · {p.featuredCard}</div>
+                </div>
+                <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                  <div className="digital-value" style={{ fontSize: "0.85rem", color: A, textShadow: `0 0 10px ${A}55` }}>{p.priceChange}</div>
+                  <span className={statusBadgeClass(p.status)} style={{ fontSize: "0.5rem" }}>{statusLabel(p.status)}</span>
+                </div>
+              </div>
+
+              {/* Main body */}
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: "24px 24px", marginBottom: 24 }}>
+                <p style={{ fontSize: "1rem", color: "#c0c0c0", lineHeight: 1.8, margin: 0 }}>
+                  {ev.body}
+                </p>
+              </div>
+
+              {/* Extended analysis sections */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {extSections.map((sec, idx) => (
+                  <div key={idx} style={{
+                    background: "rgba(255,255,255,0.02)", border: `1px solid ${A}14`,
+                    borderRadius: 14, padding: "20px 22px", position: "relative", overflow: "hidden",
+                  }}>
+                    {/* Subtle top accent */}
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${A}44, transparent)` }} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                      {sec.icon}
+                      <span className="stat-label-mono" style={{ fontSize: "0.6rem", color: A, letterSpacing: "0.15em" }}>{sec.label}</span>
+                    </div>
+                    <p style={{ fontSize: "0.82rem", color: "#888", lineHeight: 1.8, margin: 0 }}>
+                      {sec.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom disclaimer */}
+              <div style={{ marginTop: 32, padding: "14px 18px", background: `${A}08`, border: `1px solid ${A}14`, borderRadius: 10 }}>
+                <p className="stat-label-mono" style={{ fontSize: "0.5rem", color: "#444", margin: 0, lineHeight: 1.7, letterSpacing: "0.08em" }}>
+                  DISCLAIMER: This analysis is for informational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Always conduct your own research before making investment decisions.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
     </div>
   );
 }
