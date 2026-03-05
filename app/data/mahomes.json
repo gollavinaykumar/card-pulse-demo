@@ -11,30 +11,30 @@
         "height": "6 ft 2 in",
         "weight": "102 kg",
         "dob": "1995-09-17",
-        "experience_years": 8,
+        "experience_years": 9,
         "initials": "PM",
         "status": "heating",
         "priceChange": "+10.2%",
         "priceLabel": "21D Historical Avg",
         "cardGrade": "S+",
-        "overallScore": 95,
-        "featuredCard": "2017 Panini Prizm Rookie PSA 9",
-        "lastGame": "SEP 18, 2025 · 3 TD · 284 YDS"
+        "overallScore": 87,
+        "featuredCard": "2017 Panini Prizm Rookie PSA 10",
+        "lastGame": "FEB 08, 2026 · 4 TD · 330 YDS"
     },
     "career_summary": {
-        "games_played": 112,
-        "wins": 89,
+        "games_played": 131,
+        "wins": 100,
         "losses": 23,
-        "passing_yards": 32000,
-        "passing_touchdowns": 260,
-        "interceptions": 65,
-        "completion_percentage": 66.5,
-        "passer_rating": 102.1,
-        "rushing_yards": 1900,
-        "rushing_touchdowns": 12,
-        "super_bowls_won": 3,
-        "mvps": 2,
-        "super_bowl_mvps": 3
+        "passing_yards": 35820,
+        "passing_touchdowns": 286,
+        "interceptions": 74,
+        "completion_percentage": 66.8,
+        "passer_rating": 103.2,
+        "rushing_yards": 2235,
+        "rushing_touchdowns": 14,
+        "super_bowls_won": 4,
+        "mvps": 3,
+        "super_bowl_mvps": 4
     },
     "season_stats": [
         {
@@ -190,6 +190,16 @@
             "year": 2023,
             "award": "Super Bowl MVP",
             "icon": "💍"
+        },
+        {
+            "year": 2024,
+            "award": "Super Bowl MVP",
+            "icon": "💍"
+        },
+        {
+            "year": 2025,
+            "award": "NFL MVP",
+            "icon": "🏆"
         }
     ],
     "analytics_flags": {
@@ -202,42 +212,42 @@
     "news_feed": [
         {
             "id": "m1",
-            "ts": "2025-02-24T19:15:00Z",
+            "ts": "2026-02-09T19:15:00Z",
             "type": "signal",
             "title": "Slab Momentum Surging",
-            "body": "Mahomes 2017 Prizm RC volume up 42% — market reacting to 3-peat narrative.",
+            "body": "Mahomes 2017 Prizm RC volume up 112% — market reacting to 4th Super Bowl victory.",
             "tag": "HEATING UP"
         },
         {
             "id": "m2",
-            "ts": "2025-02-24T12:00:00Z",
+            "ts": "2026-02-09T12:00:00Z",
             "type": "price",
             "title": "New Price Floor",
-            "body": "2017 Prizm RC PSA 9 now holding firm above $12,500 — sellers drying up.",
+            "body": "2017 Prizm RC PSA 10 now holding firm above $42,500 — sellers drying up.",
             "tag": "NEW HIGH"
         },
         {
             "id": "m3",
-            "ts": "2025-02-23T21:30:00Z",
+            "ts": "2026-02-08T21:30:00Z",
             "type": "game",
-            "title": "Week 8 Domination",
-            "body": "284 passing yards, 3 TDs, 0 INTs vs LV. Season passer rating climbs to 101.5.",
-            "tag": null
+            "title": "Super Bowl LIX MVP",
+            "body": "330 passing yards, 4 TDs. Secures 4th Super Bowl ring and MVP honors in New Orleans.",
+            "tag": "CHAMPIONSHIP"
         },
         {
             "id": "m4",
-            "ts": "2025-02-23T08:00:00Z",
+            "ts": "2026-02-05T08:00:00Z",
             "type": "insight",
-            "title": "Dynasty Status Confirmed",
-            "body": "CardPulse AI rates Mahomes as the #1 long-term QB slab hold across all formats.",
+            "title": "GOAT Status Re-evaluated",
+            "body": "CardPulse AI rates Mahomes as the undisputed #1 long-term QB slab hold across all formats.",
             "tag": "ELITE HOLD"
         },
         {
             "id": "m5",
-            "ts": "2026-02-22T15:45:00Z",
+            "ts": "2026-02-01T15:45:00Z",
             "type": "price",
             "title": "Auction Alert",
-            "body": "2017 Prizm Gold /10 PSA 10 sold for $185,000 at Heritage. Record for modern football.",
+            "body": "2017 Prizm Gold /10 PSA 10 sold for $235,000 at Heritage. Pre-Super Bowl surge.",
             "tag": "RECORD"
         }
     ],

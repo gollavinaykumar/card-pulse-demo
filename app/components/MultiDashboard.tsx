@@ -128,8 +128,8 @@ const gradeBreakdown = [
 const PriceTooltip = ({ active, payload, label, A }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.8rem", boxShadow: "0 8px 40px rgba(0,0,0,0.8)" }}>
-      <p style={{ color: "#555", fontWeight: 700, fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{label}</p>
+    <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.96rem", boxShadow: "0 8px 40px rgba(0,0,0,0.8)" }}>
+      <p style={{ color: "#555", fontWeight: 700, fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{label}</p>
       {payload.map((pp: any, i: number) => (
         <p key={i} style={{ fontWeight: 700, color: pp.name === "price" ? A : "#6b7280", marginBottom: 1 }}>
           {pp.name === "price" ? `$${pp.value.toLocaleString()}` : `${pp.value} sales`}
@@ -142,8 +142,8 @@ const PriceTooltip = ({ active, payload, label, A }: any) => {
 const MultiTooltip = ({ active, payload, label, A }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.8rem" }}>
-      <p style={{ color: "#555", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{label}</p>
+    <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.96rem" }}>
+      <p style={{ color: "#555", fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{label}</p>
       {payload.map((pp: any, i: number) => (
         <p key={i} style={{ fontWeight: 700, color: pp.color || A, marginBottom: 1 }}>{pp.name}: <strong>${Number(pp.value).toLocaleString()}</strong></p>
       ))}
@@ -170,6 +170,40 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
   const [showFlash, setShowFlash] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   React.useEffect(() => { const t = setTimeout(() => setShowFlash(false), 700); return () => clearTimeout(t); }, []);
+
+  // ── 3D Card Interactive State ──────────────────────────────────────
+  const [isHovering, setIsHovering] = useState(false);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [mouseX, setMouseX] = useState(50);
+  const [mouseY, setMouseY] = useState(50);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMouseX((x / rect.width) * 100);
+    setMouseY((y / rect.height) * 100);
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    // Calculate rotation (-15 to +15 deg max)
+    const rx = -((y - centerY) / centerY) * 15;
+    const ry = ((x - centerX) / centerX) * 15;
+    setRotateX(rx);
+    setRotateY(ry);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    setRotateX(0);
+    setRotateY(0);
+    setMouseX(50);
+    setMouseY(50);
+  };
+
+  const handleMouseEnter = () => setIsHovering(true);
+
 
   // ── Live price simulation ──────────────────────────────────────
   const initPrices = () => Object.fromEntries(
@@ -317,18 +351,17 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
       <nav className="md-nav" style={{ backdropFilter: "blur(28px)", background: "rgba(5,5,5,0.92)", borderBottom: `1px solid ${A}1a` }}>
         <div className="nav-brand">
           <img src="/logo.png" alt="CardPulse" style={{ height: 44, objectFit: "contain", filter: `drop-shadow(0 0 10px ${themeGlow})` }} />
-          <span style={{ background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 5, padding: "2px 8px", fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: AB, fontFamily: "Oswald, sans-serif" }}>{themeName}</span>
+          <span style={{ background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 5, padding: "2px 8px", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: AB, fontFamily: "Oswald, sans-serif" }}>{themeName}</span>
         </div>
         <div className="nav-actions">
-          <button onClick={onBack} style={{ background: `${A}1a`, border: `1px solid ${A}44`, borderRadius: 8, padding: "6px 16px", fontSize: "0.72rem", fontWeight: 700, color: A, cursor: "pointer", fontFamily: "Oswald, sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" }}>← Edit Roster</button>
-          <button onClick={onNewRoster} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 16px", fontSize: "0.72rem", fontWeight: 700, color: "#666", cursor: "pointer", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>New Roster</button>
+          {/* Roster selection is bypassed */}
         </div>
       </nav>
       {/* LIVE indicator sub-bar — tinted with status color */}
       <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6, padding: "5px 28px",  }}>
 
         <div style={{ width: 7, height: 7, borderRadius: 99, background: "#22c55e", boxShadow: "0 0 8px rgba(34,197,94,0.8)", animation: "flicker 1.5s ease-in-out infinite" }} />
-        <span style={{ fontSize: "0.6rem", color: "#22c55e", fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase" }}>Live Market</span>
+        <span style={{ fontSize: "0.72rem", color: "#22c55e", fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase" }}>Live Market</span>
       </div>
 
       <div className="md-page-content" style={{ maxWidth: 1300, margin: "0 auto", padding: "28px 20px", display: "flex", flexDirection: "column", gap: 22 }}>
@@ -336,8 +369,8 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
         {isAll ? (
           <div className="animate-fade-up hero-slam" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
             <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
-            <h2 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.3rem", color: A, margin: "0 0 6px", textTransform: "uppercase" }}>ROSTER OVERVIEW</h2>
-            <p style={{ color: "#555", fontSize: "0.75rem", marginBottom: 20 }}>Comparing {players.length} players — click a player in the sidebar to view individual analytics.</p>
+            <h2 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.56rem", color: A, margin: "0 0 6px", textTransform: "uppercase" }}>ROSTER OVERVIEW</h2>
+            <p style={{ color: "#555", fontSize: "0.9rem", marginBottom: 20 }}>Comparing {players.length} players — click a player in the sidebar to view individual analytics.</p>
             <div className="md-roster-grid" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))` }}>
 
               {players.map((pd, i) => {
@@ -355,19 +388,19 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                     onMouseEnter={e => { e.currentTarget.style.borderColor = PCOLORS[i]; }}
                     onMouseLeave={e => { if (!statusClass) e.currentTarget.style.borderColor = `${PCOLORS[i]}33`; }}>
                     {/* Status badge top-right */}
-                    <span className={statusBadgeClass(pd.player.status)} style={{ position: "absolute", top: 8, right: 8, fontSize: "0.48rem", padding: "1px 6px" }}>
+                    <span className={statusBadgeClass(pd.player.status)} style={{ position: "absolute", top: 8, right: 8, fontSize: "0.58rem", padding: "1px 6px" }}>
                       {statusLabel(pd.player.status)}
                     </span>
                     <div style={{ width: 56, height: 56, borderRadius: 10, overflow: "hidden", flexShrink: 0, border: `2px solid ${PCOLORS[i]}66` }}>
                       <img src={CARDS_MAP[pd.player.slug] ?? "/mahomes.png"} alt={pd.player.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                     <div>
-                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f0f0f0", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>{pd.player.name}</div>
-                      <div style={{ fontSize: "0.6rem", color: "#555" }}>{pd.player.team} · #{pd.player.number}</div>
+                      <div style={{ fontSize: "1.02rem", fontWeight: 700, color: "#f0f0f0", fontFamily: "Oswald, sans-serif", textTransform: "uppercase" }}>{pd.player.name}</div>
+                      <div style={{ fontSize: "0.72rem", color: "#555" }}>{pd.player.team} · #{pd.player.number}</div>
                       <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                        <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: `${PCOLORS[i]}1a`, color: PCOLORS[i], border: `1px solid ${PCOLORS[i]}33` }}>{pd.player.priceChange}</span>
+                        <span style={{ fontSize: "0.66rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: `${PCOLORS[i]}1a`, color: PCOLORS[i], border: `1px solid ${PCOLORS[i]}33` }}>{pd.player.priceChange}</span>
                         {/* Live price with flash */}
-                        <span style={{ fontSize: "0.55rem", fontWeight: 800, padding: "1px 6px", borderRadius: 4,
+                        <span style={{ fontSize: "0.66rem", fontWeight: 800, padding: "1px 6px", borderRadius: 4,
                           background: priceDir[pd.player.slug] === "up" ? "rgba(34,197,94,0.15)" : priceDir[pd.player.slug] === "down" ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.04)",
                           color: priceDir[pd.player.slug] === "up" ? "#22c55e" : priceDir[pd.player.slug] === "down" ? "#ef4444" : "#888",
                           transition: "background 0.3s, color 0.3s",
@@ -388,131 +421,157 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
         ) : (
           <div className="animate-fade-up md-hero-single" style={{ ...C, position: "relative", overflow: "hidden", border: `1px solid ${A}33`, boxShadow: `0 0 20px ${A}33, 0 0 60px ${A}0d, inset 0 1px 0 rgba(255,255,255,0.06)` }}>
             <div style={{ position: "absolute", top: 0, left: 0, width: 120, height: "300%", background: `linear-gradient(90deg, transparent, ${A}0a 40%, rgba(255,255,255,0.03) 50%, ${A}0a 60%, transparent)`, pointerEvents: "none", animation: "spotlightSweep 6s ease-in-out infinite" }} />
-            <div style={{ display: "flex", alignItems: "center", zIndex: 1 }}>
-              {/* 3D Rotating Card — alias.org style */}
-              <div className="card-3d-scene" style={{ width: 200, height: 280 }}>
-                <div className="card-3d-float" style={{ width: "100%", height: "100%" }}>
-                  <div className="card-3d-rotate" style={{ animationDuration: "10s", width: "100%", height: "100%", position: "relative" }}>
-                    {/* FRONT FACE — Player image */}
-                    <div className="card-3d-face" style={{ position: "absolute", inset: 0, borderRadius: 10, overflow: "hidden" }}>
-                      <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                        <div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
-                        <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
-                          <img src={cardImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }} />
+            {/* Status Badge — top right */}
+            <span className={statusBadgeClass(p.status)} style={{ position: "absolute", top: 14, right: 14, fontSize: "0.94rem", padding: "5px 14px", zIndex: 3 }}>{statusLabel(p.status)}</span>
+
+            {/* ═══ MAIN ROW: Image → Info → Stats → Speedometer ═══ */}
+            <div className="md-hero-single-flex" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "clamp(20px, 10vw, 200px)", zIndex: 1 }}>
+
+              {/* Left Group: Card + Info/Stats */}
+              <div className="md-hero-info-group" style={{ display: "flex", alignItems: "center", gap: 32, flex: "1 1 auto" }}>
+                {/* 1. Card Image */}
+                <div className="card-3d-scene" style={{ width: 160, height: 220, flexShrink: 0 }}>
+                  <div className="card-3d-float" style={{ width: "100%", height: "100%" }}>
+                    <div className="card-3d-rotate" style={{ animationDuration: "10s", width: "100%", height: "100%", position: "relative" }}>
+                      <div className="card-3d-face" style={{ position: "absolute", inset: 0, borderRadius: 10, overflow: "hidden" }}>
+                        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                          <div className="card-slab-glow" style={{ inset: "-22%", background: `radial-gradient(circle, ${A}bb 0%, transparent 70%)` }} />
+                          <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
+                            <img src={cardImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {/* BACK FACE — Premium card back */}
-                    <div className="card-3d-face" style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", borderRadius: 10, overflow: "hidden" }}>
-                      <div style={{
-                        width: "100%", height: "100%",
-                        background: "linear-gradient(160deg, #0a0a0a 0%, #111 40%, #0d0d0d 100%)",
-                        border: `2px solid ${A}44`,
-                        borderRadius: 10,
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                        padding: "16px 14px", gap: 8, position: "relative", overflow: "hidden",
-                        boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)`,
-                      }}>
-                        {/* Inner border accent */}
-                        <div style={{ position: "absolute", inset: 6, border: `1px solid ${A}22`, borderRadius: 6, pointerEvents: "none" }} />
-                        {/* Top accent line */}
-                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${A}, transparent)` }} />
-                        {/* Grade badge */}
-                        <div style={{
-                          width: 48, height: 48, borderRadius: "50%",
-                          background: `linear-gradient(145deg, ${A}33, ${A}11)`,
-                          border: `2px solid ${A}88`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          boxShadow: `0 0 20px ${A}44`,
-                        }}>
-                          <span className="digital-value" style={{ fontSize: "1rem", color: "#f0f0f0", textShadow: `0 0 12px ${A}88` }}>{p.cardGrade}</span>
+                      <div className="card-3d-face" style={{ position: "absolute", inset: 0, transform: "rotateY(180deg)", borderRadius: 10, overflow: "hidden" }}>
+                        <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg, #0a0a0a 0%, #111 40%, #0d0d0d 100%)", border: `2px solid ${A}44`, borderRadius: 10, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "12px 10px", gap: 6, position: "relative", overflow: "hidden", boxShadow: `0 0 25px ${A}77, 0 8px 40px rgba(0,0,0,0.8)` }}>
+                          <div style={{ position: "absolute", inset: 5, border: `1px solid ${A}22`, borderRadius: 6, pointerEvents: "none" }} />
+                          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${A}, transparent)` }} />
+                          <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(145deg, ${A}33, ${A}11)`, border: `2px solid ${A}88`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 15px ${A}44` }}>
+                            <span className="digital-value" style={{ fontSize: "0.8rem", color: "#f0f0f0", textShadow: `0 0 10px ${A}88` }}>{p.cardGrade}</span>
+                          </div>
+                          <div className="stat-label-mono" style={{ fontSize: "0.38rem", color: A, letterSpacing: "0.18em" }}>AUTHENTICATED</div>
+                          <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.78rem", color: "#e0e0e0", textTransform: "uppercase", textAlign: "center", lineHeight: 1.2 }}>{p.name}</div>
+                          <div className="stat-label-mono" style={{ fontSize: "0.38rem", color: "#444", textAlign: "center", lineHeight: 1.4 }}>{p.featuredCard}<br/>#{p.number} · {p.team}</div>
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${A}66, transparent)` }} />
                         </div>
-                        {/* Auth label */}
-                        <div className="stat-label-mono" style={{ fontSize: "0.5rem", color: A, letterSpacing: "0.2em" }}>AUTHENTICATED</div>
-                        {/* Player name */}
-                        <div style={{ fontFamily: "var(--font-oswald), Oswald, sans-serif", fontWeight: 700, fontSize: "0.78rem", color: "#e0e0e0", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", lineHeight: 1.2 }}>
-                          {p.name}
-                        </div>
-                        {/* Card details */}
-                        <div className="stat-label-mono" style={{ fontSize: "0.38rem", color: "#444", textAlign: "center", lineHeight: 1.5 }}>
-                          {p.featuredCard}<br/>#{p.number} · {p.team}
-                        </div>
-                        {/* Score bar */}
-                        <div style={{ width: "65%", height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
-                          <div style={{ width: `${p.overallScore}%`, height: "100%", background: `linear-gradient(90deg, ${A}, ${A}88)`, borderRadius: 2 }} />
-                        </div>
-                        <div className="digital-value" style={{ fontSize: "0.48rem", color: "#555", textShadow: "none" }}>
-                          SCORE {p.overallScore}/100
-                        </div>
-                        {/* Auth pattern */}
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 1.5, opacity: 0.12, marginTop: 2 }}>
-                          {Array.from({ length: 32 }).map((_, i) => (
-                            <div key={i} style={{ width: 3.5, height: 3.5, background: i % 3 === 0 ? A : "#fff", borderRadius: 1 }} />
-                          ))}
-                        </div>
-                        {/* Bottom accent */}
-                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${A}66, transparent)` }} />
                       </div>
                     </div>
                   </div>
+                  <div className="card-3d-shadow" />
                 </div>
-                {/* Ground shadow */}
-                <div className="card-3d-shadow" />
-              </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, zIndex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div><div style={{ fontSize: "3rem", fontFamily: "Oswald, sans-serif", fontWeight: 700, color: A, lineHeight: 1 }}>{p.priceChange}</div><div style={{ fontSize: "0.62rem", color: "#555", fontWeight: 600, marginTop: 3, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>{p.priceLabel}</div></div>
-                <span className={statusBadgeClass(p.status)} style={{ fontSize: "0.72rem" }}>{statusLabel(p.status)}</span>
-              </div>
-              <div><h1 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem,4vw,3rem)", color: "#f0f0f0", margin: 0, textTransform: "uppercase" }}>{p.name.split(" ")[0]} <span style={{ color: A }}>{p.name.split(" ").slice(1).join(" ").toUpperCase()}</span></h1>
-                <p style={{ color: "#555", fontSize: "0.78rem", marginTop: 4 }}>#{p.number} · {p.team} · {p.featuredCard}</p></div>
-              <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)` }} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: 8 }}>
-                {[
-                  { l: "LIVE PRICE",  v: (livePrices[p.slug] ?? lastPrice), isLive: true },
-                  { l: "30D HIGH",    v: Math.max(...singleHist.map(h => h.price)) },
-                  { l: "30D LOW",     v: Math.min(...singleHist.map(h => h.price)) },
-                  { l: "21D AVG",     v: avg21d },
-                  { l: "VOLUME",      v: null, vStr: `${totalVol}` },
-                  { l: "VOL SPIKE",   v: null, vStr: isVolSpike ? "▲ SPIKE" : "NORMAL", isSpike: isVolSpike },
-                ].map(s => {
-                  const dir = (s as any).isLive ? (priceDir[p.slug] ?? "") : "";
-                  const spikeColor = (s as any).isSpike ? A : undefined;
-                  return (
-                  <div key={s.l} className="digital-tile" style={{ '--accent': dir === 'up' ? '#22c55e' : dir === 'down' ? '#ef4444' : spikeColor || A, transition: "all 0.3s ease" } as React.CSSProperties}>
-                    <div className="stat-label-mono" style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>
-                      {s.l}
-                      {(s as any).isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 5px #22c55e", animation: "flicker 1.5s ease-in-out infinite", display: "inline-block" }} />}
+
+                {/* 2 & 3. Middle Column: Player Info top, Stats below */}
+                <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 24, paddingTop: 8 }}>
+                  {/* 2. Player Info */}
+                  <div style={{ width: "100%", maxWidth: 600 }}>
+                    <h1 style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "clamp(1.68rem,3vw,2.64rem)", color: "#f0f0f0", margin: 0, textTransform: "uppercase", lineHeight: 1.1 }}>{p.name.split(" ")[0]} <span style={{ color: A }}>{p.name.split(" ").slice(1).join(" ").toUpperCase()}</span></h1>
+                    <p style={{ color: "#555", fontSize: "0.84rem", marginTop: 4 }}>#{p.number} · {p.team}</p>
+                    <p style={{ color: "#444", fontSize: "0.72rem", marginTop: 2 }}>{p.featuredCard}</p>
+                    <div style={{ marginTop: 8 }}>
+                      <div style={{ fontSize: "2.88rem", fontFamily: "Oswald, sans-serif", fontWeight: 700, color: A, lineHeight: 1 }}>{p.priceChange}</div>
+                      <div style={{ fontSize: "0.66rem", color: "#555", fontWeight: 600, marginTop: 2, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>{p.priceLabel}</div>
                     </div>
-                    <div className="digital-value" style={{ fontSize: "0.95rem",
-                      color: dir === "up" ? "#22c55e" : dir === "down" ? "#ef4444" : (s as any).isSpike ? A : "#f0f0f0",
-                      textShadow: dir === "up" ? '0 0 10px rgba(34,197,94,0.5)' : dir === "down" ? '0 0 10px rgba(239,68,68,0.5)' : (s as any).isSpike ? `0 0 10px ${A}55` : `0 0 8px ${A}33`,
-                    }}>
-                      {s.vStr ? s.vStr : `${dir === "up" ? "▲" : dir === "down" ? "▼" : ""}$${s.v!.toLocaleString()}`}
+                  </div>
+
+                  {/* 3. Stats + Milestones */}
+                  <div style={{ width: "100%", maxWidth: 600 }}>
+                    <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)`, marginBottom: 10 }} />
+                    <div className="md-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+                      {[
+                        { l: "LIVE PRICE",  v: (livePrices[p.slug] ?? lastPrice), isLive: true },
+                        { l: "30D HIGH",    v: Math.max(...singleHist.map(h => h.price)) },
+                        { l: "30D LOW",     v: Math.min(...singleHist.map(h => h.price)) },
+                        { l: "21D AVG",     v: avg21d },
+                        { l: "VOLUME",      v: null, vStr: `${totalVol}` },
+                        { l: "VOL SPIKE",   v: null, vStr: isVolSpike ? "▲ SPIKE" : "NORMAL", isSpike: isVolSpike },
+                      ].map(s => {
+                        const dir = (s as any).isLive ? (priceDir[p.slug] ?? "") : "";
+                        const spikeColor = (s as any).isSpike ? A : undefined;
+                        return (
+                        <div key={s.l} className="digital-tile" style={{ '--accent': dir === 'up' ? '#22c55e' : dir === 'down' ? '#ef4444' : spikeColor || A, transition: "all 0.3s ease" } as React.CSSProperties}>
+                          <div className="stat-label-mono" style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>
+                            {s.l}
+                            {(s as any).isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 5px #22c55e", animation: "flicker 1.5s ease-in-out infinite", display: "inline-block" }} />}
+                          </div>
+                          <div className="digital-value" style={{ fontSize: "1.02rem",
+                            color: dir === "up" ? "#22c55e" : dir === "down" ? "#ef4444" : (s as any).isSpike ? A : "#f0f0f0",
+                            textShadow: dir === "up" ? '0 0 10px rgba(34,197,94,0.5)' : dir === "down" ? '0 0 10px rgba(239,68,68,0.5)' : (s as any).isSpike ? `0 0 10px ${A}55` : `0 0 8px ${A}33`,
+                          }}>
+                            {s.vStr ? s.vStr : `${dir === "up" ? "▲" : dir === "down" ? "▼" : ""}$${s.v!.toLocaleString()}`}
+                          </div>
+                        </div>);
+                      })}
                     </div>
-                  </div>);
-                })}
-              </div>
-              {/* Milestones */}
-              {(ap as any).awards && (ap as any).awards.length > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                  <span className="stat-label-mono" style={{ color: A, marginRight: 4 }}>MILESTONES</span>
-                  {(ap as any).awards.map((aw: {year: number; award: string; icon: string}, ai: number) => (
-                    <span key={ai} className="milestone-tag" style={{ '--accent': A } as React.CSSProperties}>
-                      <span className="milestone-year">{aw.year}</span> {aw.icon} {aw.award}
-                    </span>
-                  ))}
+                    {(ap as any).awards && (ap as any).awards.length > 0 && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", marginTop: 12 }}>
+                        <span className="stat-label-mono" style={{ color: A, marginRight: 3, fontSize: "0.6rem" }}>MILESTONES:</span>
+                        {(ap as any).awards.map((aw: {year: number; award: string; icon: string}, ai: number) => (
+                          <span key={ai} className="milestone-tag" style={{ '--accent': A, fontSize: "0.58rem" } as React.CSSProperties}>
+                            <span className="milestone-year">{aw.year}</span> {aw.icon} {aw.award}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, background: `${A}0f`, border: `1px solid ${A}26`, borderRadius: 9, padding: "7px 12px" }}>
-                <Zap size={13} color={A} />
-                <span className="digital-value" style={{ fontSize: "0.72rem", color: "#777" }}><strong style={{ color: A }}>OUR TAKE:</strong> Grade {p.cardGrade} · Score {p.overallScore}/100</span>
               </div>
+
+              {/* 4. Speedometer — far right */}
+              {(() => {
+                const recScore = p.overallScore;
+                const needleAngle = 180 - (recScore / 100) * 180;
+                // Base setup for needle rotation calculation
+                const recLabel = recScore >= 80 ? "STRONG BUY" : recScore >= 60 ? "BUY" : recScore >= 45 ? "HOLD" : recScore >= 25 ? "SELL" : "STRONG SELL";
+                const recColor = recScore >= 80 ? "#22c55e" : recScore >= 60 ? "#4ade80" : recScore >= 45 ? "#f59e0b" : recScore >= 25 ? "#f97316" : "#ef4444";
+                const recAdvice = recScore >= 80 ? "High-conviction accumulation zone." : recScore >= 60 ? "Favorable entry window." : recScore >= 45 ? "Maintain current position." : recScore >= 25 ? "Consider reducing exposure." : "Defensive positioning recommended.";
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, flexShrink: 0, paddingTop: 8 }}>
+                    <svg width="200" height="115" viewBox="0 0 200 115">
+                      {/* Gauge Background Bands */}
+                      <path d="M 20 90 A 80 80 0 0 1 180 90" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="14" strokeLinecap="round" />
+                      <path d="M 20 90 A 80 80 0 0 1 58 26" fill="none" stroke="#ef4444" strokeWidth="14" strokeLinecap="round" opacity="0.7" />
+                      <path d="M 58 26 A 80 80 0 0 1 142 26" fill="none" stroke="#f59e0b" strokeWidth="14" strokeLinecap="round" opacity="0.6" />
+                      <path d="M 142 26 A 80 80 0 0 1 180 90" fill="none" stroke="#22c55e" strokeWidth="14" strokeLinecap="round" opacity="0.7" />
+                      <text x="35" y="82" fill="#ef4444" fontSize="7" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle" opacity="0.8">SELL</text>
+                      <text x="100" y="22" fill="#f59e0b" fontSize="7" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle" opacity="0.8">HOLD</text>
+                      <text x="165" y="82" fill="#22c55e" fontSize="7" fontFamily="Oswald, sans-serif" fontWeight="700" textAnchor="middle" opacity="0.8">BUY</text>
+                      
+                      {/* Animated Needle Group */}
+                      <g style={{
+                        transformOrigin: "100px 90px",
+                        animation: "needleSweep 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) 5s both", 
+                      }}>
+                        <line x1="100" y1="90" x2="40" y2="90" stroke={recColor} strokeWidth="2.5" strokeLinecap="round" style={{ filter: `drop-shadow(0 0 5px ${recColor})` }} />
+                        <circle cx="40" cy="90" r="3" fill={recColor} opacity="0.6" style={{ filter: `drop-shadow(0 0 5px ${recColor})` }} />
+                      </g>
+
+                      {/* Center Hub */}
+                      <circle cx="100" cy="90" r="5" fill={recColor} style={{ filter: `drop-shadow(0 0 6px ${recColor})` }} />
+                      <circle cx="100" cy="90" r="2.5" fill="#0a0a0a" />
+                      
+                      <text x="100" y="110" fill="#f0f0f0" fontSize="14" fontFamily="var(--font-digital), monospace" fontWeight="400" textAnchor="middle" style={{ filter: `drop-shadow(0 0 6px ${recColor}55)` }}>{recScore}</text>
+                    </svg>
+                    
+                    {/* Inline Animation Styles based on calculated needleAngle */}
+                    <style>{`
+                      @keyframes needleSweep {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(${180 - needleAngle}deg); }
+                      }
+                    `}</style>
+
+                    <div className="digital-value" style={{ fontSize: "1.02rem", color: recColor, textShadow: `0 0 12px ${recColor}55` }}>{recLabel}</div>
+                    <div style={{ fontSize: "0.6rem", color: "#555", textAlign: "center", maxWidth: 180, lineHeight: 1.3 }}>{recAdvice}</div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 3 }}>
+                      <span className="digital-value" style={{ fontSize: "0.58rem", padding: "2px 7px", borderRadius: 4, background: `${recColor}14`, color: recColor, border: `1px solid ${recColor}33` }}>Grade {p.cardGrade}</span>
+                      <span className="digital-value" style={{ fontSize: "0.58rem", padding: "2px 7px", borderRadius: 4, background: "rgba(255,255,255,0.03)", color: "#555", border: "1px solid rgba(255,255,255,0.06)" }}>{p.overallScore}/100</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
             </div>
           </div>
         )}
-
         {/* KPI STRIP */}
         <div className="md-kpi animate-fade-up-delay-1">
           {dashKpis.map((kpi, i) => {
@@ -521,11 +580,11 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
               <div key={kpi.label} className={`animate-fade-up-delay-${i + 1}`} style={{ ...C, padding: 18 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: `${kpi.color}14`, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${kpi.color}25` }}><Icon size={16} color={kpi.color} strokeWidth={2} /></div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}><ArrowUpRight size={12} color={A} /><span style={{ fontSize: "0.68rem", fontWeight: 700, color: A }}>{kpi.delta}</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}><ArrowUpRight size={12} color={A} /><span style={{ fontSize: "0.82rem", fontWeight: 700, color: A }}>{kpi.delta}</span></div>
                 </div>
-                <div className="digital-value" style={{ fontSize: "1.5rem", color: "#f0f0f0", textShadow: `0 0 12px ${kpi.color}55, 0 0 30px ${kpi.color}1a` }}>{kpi.value}</div>
+                <div className="digital-value" style={{ fontSize: "1.8rem", color: "#f0f0f0", textShadow: `0 0 12px ${kpi.color}55, 0 0 30px ${kpi.color}1a` }}>{kpi.value}</div>
                 <div className="stat-label-mono" style={{ color: A, marginTop: 4 }}>{kpi.label}</div>
-                <div style={{ fontSize: "0.52rem", color: "#444", marginTop: 2, fontFamily: "var(--font-digital), monospace" }}>{kpi.sub}</div>
+                <div style={{ fontSize: "0.62rem", color: "#444", marginTop: 2, fontFamily: "var(--font-digital), monospace" }}>{kpi.sub}</div>
               </div>
             );
           })}
@@ -563,14 +622,14 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
               {/* Header */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
                 <div>
-                  <p style={{ fontSize: "0.62rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>PORTFOLIO RETURNS</p>
-                  <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.15rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>YOUR P&amp;L DASHBOARD</h2>
+                  <p style={{ fontSize: "0.74rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>PORTFOLIO RETURNS</p>
+                  <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.38rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>YOUR P&amp;L DASHBOARD</h2>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 900, fontSize: "2rem", color: portfolioGainColor, lineHeight: 1 }}>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 900, fontSize: "2.4rem", color: portfolioGainColor, lineHeight: 1 }}>
                     {isPortfolioProfit ? "+" : "-"}${Math.abs(totalGain).toLocaleString()}
                   </div>
-                  <div style={{ fontSize: "0.65rem", color: portfolioGainColor, fontWeight: 700 }}>{isPortfolioProfit ? "+" : ""}{totalPct}% Total ROI</div>
+                  <div style={{ fontSize: "0.78rem", color: portfolioGainColor, fontWeight: 700 }}>{isPortfolioProfit ? "+" : ""}{totalPct}% Total ROI</div>
                 </div>
               </div>
 
@@ -582,15 +641,15 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                   { label: "UNREALISED GAIN", value: `${isPortfolioProfit ? "+" : "-"}$${Math.abs(totalGain).toLocaleString()}`, color: portfolioGainColor },
                 ].map(s => (
                   <div key={s.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px" }}>
-                    <div style={{ fontSize: "0.5rem", color: "#444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: s.color }}>{s.value}</div>
+                    <div style={{ fontSize: "0.6rem", color: "#444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.32rem", color: s.color }}>{s.value}</div>
                   </div>
                 ))}
               </div>
 
               {/* Per-player gain bars */}
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: "0.55rem", color: "#444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>PER-PLAYER BREAKDOWN</div>
+                <div style={{ fontSize: "0.66rem", color: "#444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>PER-PLAYER BREAKDOWN</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {plData.map(d => {
                     const gc = d.gain !== null ? (d.gain >= 0 ? "#22c55e" : "#ef4444") : "#444";
@@ -600,15 +659,15 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <div style={{ width: 8, height: 8, borderRadius: "50%", background: d.color, boxShadow: `0 0 6px ${d.color}` }} />
-                            <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.78rem", color: "#f0f0f0", textTransform: "uppercase" }}>{d.pd.player.name}</span>
-                            {d.paid && <span style={{ fontSize: "0.55rem", color: "#555" }}>paid ${d.paid.toLocaleString()} · now ${d.cur.toLocaleString()}</span>}
+                            <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.94rem", color: "#f0f0f0", textTransform: "uppercase" }}>{d.pd.player.name}</span>
+                            {d.paid && <span style={{ fontSize: "0.66rem", color: "#555" }}>paid ${d.paid.toLocaleString()} · now ${d.cur.toLocaleString()}</span>}
                           </div>
                           <div style={{ textAlign: "right" }}>
                             {d.gain !== null ? (
-                              <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "0.88rem", color: gc }}>
-                                {d.gain >= 0 ? "+" : "-"}${Math.abs(d.gain).toLocaleString()} <span style={{ fontSize: "0.65rem" }}>({d.gain >= 0 ? "+" : ""}{d.pct!.toFixed(1)}%)</span>
+                              <span style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.06rem", color: gc }}>
+                                {d.gain >= 0 ? "+" : "-"}${Math.abs(d.gain).toLocaleString()} <span style={{ fontSize: "0.78rem" }}>({d.gain >= 0 ? "+" : ""}{d.pct!.toFixed(1)}%)</span>
                               </span>
-                            ) : <span style={{ fontSize: "0.6rem", color: "#333", fontFamily: "Oswald, sans-serif" }}>No buy price</span>}
+                            ) : <span style={{ fontSize: "0.72rem", color: "#333", fontFamily: "Oswald, sans-serif" }}>No buy price</span>}
                           </div>
                         </div>
                         {/* Bar */}
@@ -616,7 +675,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                           <div style={{ height: "100%", width: `${barPct}%`, background: `linear-gradient(90deg, ${gc}88, ${gc})`, borderRadius: 99, transition: "width 0.8s cubic-bezier(0.4,0,0.2,1)", boxShadow: `0 0 8px ${gc}66` }} />
                         </div>
                         {/* Daily velocity */}
-                        {d.paid && <div style={{ fontSize: "0.52rem", color: "#444", marginTop: 3 }}>7-day avg: {d.dailyVelocity >= 0 ? "+" : "-"}${Math.abs(d.dailyVelocity).toFixed(0)}/day · At this rate, {d.dailyVelocity > 0 ? `doubles in ${Math.round(d.cur / d.dailyVelocity)} days` : d.dailyVelocity < 0 ? `hits breakeven in ${Math.round((d.cur - d.paid) / Math.abs(d.dailyVelocity))} days` : "steady"}</div>}
+                        {d.paid && <div style={{ fontSize: "0.62rem", color: "#444", marginTop: 3 }}>7-day avg: {d.dailyVelocity >= 0 ? "+" : "-"}${Math.abs(d.dailyVelocity).toFixed(0)}/day · At this rate, {d.dailyVelocity > 0 ? `doubles in ${Math.round(d.cur / d.dailyVelocity)} days` : d.dailyVelocity < 0 ? `hits breakeven in ${Math.round((d.cur - d.paid) / Math.abs(d.dailyVelocity))} days` : "steady"}</div>}
                       </div>
                     );
                   })}
@@ -627,14 +686,14 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
               {withPaid.length > 1 && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 10, padding: "12px 16px" }}>
-                    <div style={{ fontSize: "0.52rem", color: "#22c55e", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>🏆 Best Performer</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#f0f0f0" }}>{best.pd.player.name}</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#22c55e" }}>{best.pct! >= 0 ? "+" : ""}{best.pct!.toFixed(1)}%</div>
+                    <div style={{ fontSize: "0.62rem", color: "#22c55e", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>🏆 Best Performer</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.08rem", color: "#f0f0f0" }}>{best.pd.player.name}</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.32rem", color: "#22c55e" }}>{best.pct! >= 0 ? "+" : ""}{best.pct!.toFixed(1)}%</div>
                   </div>
                   <div style={{ background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, padding: "12px 16px" }}>
-                    <div style={{ fontSize: "0.52rem", color: "#ef4444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>📉 Needs Watch</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#f0f0f0" }}>{worst.pd.player.name}</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#ef4444" }}>{worst.pct! >= 0 ? "+" : ""}{worst.pct!.toFixed(1)}%</div>
+                    <div style={{ fontSize: "0.62rem", color: "#ef4444", fontFamily: "Oswald, sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>📉 Needs Watch</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.08rem", color: "#f0f0f0" }}>{worst.pd.player.name}</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 800, fontSize: "1.32rem", color: "#ef4444" }}>{worst.pct! >= 0 ? "+" : ""}{worst.pct!.toFixed(1)}%</div>
                   </div>
                 </div>
               )}
@@ -649,10 +708,10 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             {/* Price trend */}
             <div className="animate-fade-up-delay-2" style={C}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                <div><p style={{ fontSize: "0.65rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>PRICE TREND</p><h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.15rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>30-DAY PRICE HISTORY</h2></div>
+                <div><p style={{ fontSize: "0.78rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>PRICE TREND</p><h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.38rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>30-DAY PRICE HISTORY</h2></div>
                 <div style={{ display: "flex", gap: 5 }}>
                   {(["7d","30d"] as const).map(r => (
-                    <button key={r} onClick={() => setPriceRange(r)} style={{ padding: "4px 11px", borderRadius: 6, fontSize: "0.65rem", fontWeight: 700, border: priceRange === r ? `1px solid ${A}` : "1px solid rgba(255,255,255,0.06)", background: priceRange === r ? `${A}26` : "transparent", color: priceRange === r ? A : "#555", cursor: "pointer", textTransform: "uppercase", fontFamily: "Oswald, sans-serif" }}>{r}</button>
+                    <button key={r} onClick={() => setPriceRange(r)} style={{ padding: "4px 11px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 700, border: priceRange === r ? `1px solid ${A}` : "1px solid rgba(255,255,255,0.06)", background: priceRange === r ? `${A}26` : "transparent", color: priceRange === r ? A : "#555", cursor: "pointer", textTransform: "uppercase", fontFamily: "Oswald, sans-serif" }}>{r}</button>
                   ))}
                 </div>
               </div>
@@ -682,8 +741,8 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
 
             {/* Scatter */}
             <div className="animate-fade-up-delay-3" style={C}>
-              <p style={{ fontSize: "0.65rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>SALES DISTRIBUTION</p>
-              <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.1rem", color: "#f0f0f0", margin: "0 0 18px", fontWeight: 700, textTransform: "uppercase" }}>PRICE VS RECENCY</h2>
+              <p style={{ fontSize: "0.78rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>SALES DISTRIBUTION</p>
+              <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.32rem", color: "#f0f0f0", margin: "0 0 18px", fontWeight: 700, textTransform: "uppercase" }}>PRICE VS RECENCY</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <ScatterChart margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
@@ -694,7 +753,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                     if (!active || !payload?.length) return null;
                     const d = payload[0].payload;
                     return (
-                      <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.8rem" }}>
+                      <div style={{ background: "#0c0c0c", border: `1px solid ${A}44`, borderRadius: 12, padding: "10px 16px", color: "#f0f0f0", fontSize: "0.96rem" }}>
                         <p style={{ fontWeight: 800, color: A, marginBottom: 2 }}>{isAll && d.playerName ? `${d.playerName} – ${d.label}` : d.label}</p>
                         <p style={{ color: "#aaa" }}>Price: <strong>${d.price?.toLocaleString()}</strong></p>
                         <p style={{ color: "#aaa" }}>Volume: <strong>{d.volume}</strong></p>
@@ -718,17 +777,17 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
 
             {/* Grade Breakdown */}
             <div className="animate-fade-up-delay-4" style={C}>
-              <p style={{ fontSize: "0.65rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>POPULATION REPORT</p>
-              <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.1rem", color: "#f0f0f0", margin: "0 0 20px", fontWeight: 700, textTransform: "uppercase" }}>GRADE DISTRIBUTION</h2>
+              <p style={{ fontSize: "0.78rem", color: A, fontFamily: "Oswald, sans-serif", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 2px" }}>POPULATION REPORT</p>
+              <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.32rem", color: "#f0f0f0", margin: "0 0 20px", fontWeight: 700, textTransform: "uppercase" }}>GRADE DISTRIBUTION</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
                 {gradeBreakdown.map((g, gi) => (
                   <div key={g.grade}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 5 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: "0.82rem", fontWeight: 700, color: gradeColors[gi], minWidth: 55, fontFamily: "Oswald, sans-serif" }}>{g.grade}</span>
-                        <span style={{ fontSize: "0.65rem", color: "#444" }}>{isAll ? g.count * players.length : g.count} graded</span>
+                        <span style={{ fontSize: "0.98rem", fontWeight: 700, color: gradeColors[gi], minWidth: 55, fontFamily: "Oswald, sans-serif" }}>{g.grade}</span>
+                        <span style={{ fontSize: "0.78rem", color: "#444" }}>{isAll ? g.count * players.length : g.count} graded</span>
                       </div>
-                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#f0f0f0" }}>{g.avgPrice}</span>
+                      <span style={{ fontSize: "0.98rem", fontWeight: 700, color: "#f0f0f0" }}>{g.avgPrice}</span>
                     </div>
                     <div style={{ height: 6, background: "rgba(255,255,255,0.03)", borderRadius: 99, overflow: "hidden" }}>
                       <div style={{ height: "100%", width: `${g.pct}%`, background: `linear-gradient(90deg, ${gradeColors[gi]}88, ${gradeColors[gi]})`, borderRadius: 99, boxShadow: `0 0 8px ${gradeColors[gi]}44`, animation: "progressFill 1.2s cubic-bezier(0.65,0,0.35,1) 0.3s both" }} />
@@ -745,7 +804,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             <div style={C}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
                 <Bell size={15} color={A} />
-                <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "0.95rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>EVENTS TIMELINE</h2>
+                <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.14rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>EVENTS TIMELINE</h2>
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 {ap.news_feed.map((ev, i) => (
@@ -762,16 +821,16 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                     </div>
                     <div style={{ paddingBottom: 18, flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: "0.55rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: ev.type === "signal" || ev.type === "price" ? A : "#666", fontFamily: "Oswald, sans-serif" }}>{newsTypeLabel(ev.type)}</span>
-                        <span style={{ fontSize: "0.5rem", color: "#333" }}>•</span>
-                        <span style={{ fontSize: "0.6rem", color: "#444" }}>{timeAgo(ev.ts)}</span>
-                        {ev.tag && <span style={{ fontSize: "0.5rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", padding: "1px 6px", borderRadius: 4, background: `${A}1f`, color: A, border: `1px solid ${A}4d`, fontFamily: "Oswald, sans-serif" }}>{ev.tag}</span>}
+                        <span style={{ fontSize: "0.66rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: ev.type === "signal" || ev.type === "price" ? A : "#666", fontFamily: "Oswald, sans-serif" }}>{newsTypeLabel(ev.type)}</span>
+                        <span style={{ fontSize: "0.6rem", color: "#333" }}>•</span>
+                        <span style={{ fontSize: "0.72rem", color: "#444" }}>{timeAgo(ev.ts)}</span>
+                        {ev.tag && <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", padding: "1px 6px", borderRadius: 4, background: `${A}1f`, color: A, border: `1px solid ${A}4d`, fontFamily: "Oswald, sans-serif" }}>{ev.tag}</span>}
                       </div>
-                      <p style={{ fontSize: "0.76rem", fontWeight: 700, color: "#e0e0e0", margin: "0 0 2px" }}>{ev.title}</p>
-                      <p style={{ fontSize: "0.7rem", color: "#555", lineHeight: 1.5, margin: 0 }}>{ev.body}</p>
+                      <p style={{ fontSize: "0.91rem", fontWeight: 700, color: "#e0e0e0", margin: "0 0 2px" }}>{ev.title}</p>
+                      <p style={{ fontSize: "0.84rem", color: "#555", lineHeight: 1.5, margin: 0 }}>{ev.body}</p>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
-                        <p style={{ fontSize: "0.56rem", color: "#333", margin: 0, fontFamily: "var(--font-digital), monospace", letterSpacing: "0.04em" }}><Clock size={9} style={{ verticalAlign: "middle", display: "inline", marginRight: 3 }} />{formatTimestamp(ev.ts)}</p>
-                        <span style={{ fontSize: "0.5rem", color: `${A}88`, display: "flex", alignItems: "center", gap: 2 }}>Details <ChevronRight size={10} /></span>
+                        <p style={{ fontSize: "0.67rem", color: "#333", margin: 0, fontFamily: "var(--font-digital), monospace", letterSpacing: "0.04em" }}><Clock size={9} style={{ verticalAlign: "middle", display: "inline", marginRight: 3 }} />{formatTimestamp(ev.ts)}</p>
+                        <span style={{ fontSize: "0.6rem", color: `${A}88`, display: "flex", alignItems: "center", gap: 2 }}>Details <ChevronRight size={10} /></span>
                       </div>
                     </div>
                   </div>
@@ -783,11 +842,11 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             <div style={C}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                 <Signal size={15} color={A} />
-                <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "0.88rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>YOUR ROSTER</h2>
+                <h2 style={{ fontFamily: "Oswald, sans-serif", fontSize: "1.06rem", color: "#f0f0f0", margin: 0, fontWeight: 700, textTransform: "uppercase" }}>YOUR ROSTER</h2>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {players.length > 1 && (
-                  <div onClick={() => setActivePlayer("all")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, background: isAll ? `${A}1a` : "rgba(255,255,255,0.03)", borderRadius: 10, padding: 10, border: isAll ? `2px solid ${A}80` : "1px solid rgba(255,255,255,0.06)", cursor: "pointer", transition: "all 0.2s", color: isAll ? AB : "#888", fontFamily: "Oswald, sans-serif", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase" }}>
+                  <div onClick={() => setActivePlayer("all")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, background: isAll ? `${A}1a` : "rgba(255,255,255,0.03)", borderRadius: 10, padding: 10, border: isAll ? `2px solid ${A}80` : "1px solid rgba(255,255,255,0.06)", cursor: "pointer", transition: "all 0.2s", color: isAll ? AB : "#888", fontFamily: "Oswald, sans-serif", fontSize: "0.96rem", fontWeight: 700, textTransform: "uppercase" }}>
                     <Flame size={16} /> All Players (Combined)
                   </div>
                 )}
@@ -799,12 +858,12 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                         <img src={CARDS_MAP[pd.player.slug] ?? "/mahomes.png"} alt={pd.player.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: "0.75rem", fontWeight: 700, color: isActive ? "#f0f0f0" : "#e0e0e0" }}>{pd.player.name}</div>
-                        <div style={{ fontSize: "0.6rem", color: "#444" }}>{pd.player.team}</div>
+                        <div style={{ fontSize: "0.9rem", fontWeight: 700, color: isActive ? "#f0f0f0" : "#e0e0e0" }}>{pd.player.name}</div>
+                        <div style={{ fontSize: "0.72rem", color: "#444" }}>{pd.player.team}</div>
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: pd.player.priceChange.startsWith("+") ? A : "#6b7280" }}>{pd.player.priceChange}</div>
-                        <span className={statusBadgeClass(pd.player.status)} style={{ fontSize: "0.48rem", padding: "1px 5px" }}>{statusLabel(pd.player.status).replace(" 🔥","")}</span>
+                        <div style={{ fontSize: "0.86rem", fontWeight: 700, color: pd.player.priceChange.startsWith("+") ? A : "#6b7280" }}>{pd.player.priceChange}</div>
+                        <span className={statusBadgeClass(pd.player.status)} style={{ fontSize: "0.58rem", padding: "1px 5px" }}>{statusLabel(pd.player.status).replace(" 🔥","")}</span>
                       </div>
                     </div>
                   );
@@ -816,7 +875,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             <div style={{ ...C, padding: "16px 20px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
                 <Eye size={13} color={A} />
-                <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "0.72rem", color: "#777", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>ROSTER PULSE</span>
+                <span style={{ fontFamily: "Oswald, sans-serif", fontSize: "0.86rem", color: "#777", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>ROSTER PULSE</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 {[
@@ -826,8 +885,8 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                   { label: "NEUTRAL",  count: players.filter(pp => pp.player.status === "neutral").length, color: "#374151" },
                 ].map(stat => (
                   <div key={stat.label} style={{ background: `${A}0a`, border: `1px solid ${A}14`, borderRadius: 9, padding: "9px 10px", textAlign: "center" }}>
-                    <div style={{ fontSize: "1.3rem", fontWeight: 900, color: stat.color, lineHeight: 1, fontFamily: "Oswald, sans-serif" }}>{stat.count}</div>
-                    <div style={{ fontSize: "0.5rem", fontWeight: 700, color: "#444", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 3, fontFamily: "Oswald, sans-serif" }}>{stat.label}</div>
+                    <div style={{ fontSize: "1.56rem", fontWeight: 900, color: stat.color, lineHeight: 1, fontFamily: "Oswald, sans-serif" }}>{stat.count}</div>
+                    <div style={{ fontSize: "0.6rem", fontWeight: 700, color: "#444", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 3, fontFamily: "Oswald, sans-serif" }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -837,7 +896,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
 
         <div style={{ textAlign: "center", paddingTop: 20 }}>
           <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${A}66, ${A}99, ${A}66, transparent)`, maxWidth: 200, margin: "0 auto 12px" }} />
-          <p style={{ color: "#333", fontSize: "0.62rem", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase" }}>CARDPULSE ANALYTICS · DEMO V2.0</p>
+          <p style={{ color: "#333", fontSize: "0.74rem", fontFamily: "Oswald, sans-serif", letterSpacing: "0.14em", textTransform: "uppercase" }}>CARDPULSE ANALYTICS · DEMO V2.0</p>
         </div>
       </div>
 
@@ -878,14 +937,14 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
             <div style={{ position: "sticky", top: 0, zIndex: 10, background: "linear-gradient(to bottom, rgba(5,5,5,0.98) 70%, transparent)", padding: "16px 24px 24px", display: "flex", alignItems: "center", gap: 12 }}>
               <button
                 onClick={() => setSelectedEvent(null)}
-                style={{ display: "flex", alignItems: "center", gap: 6, background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 10, padding: "8px 16px", cursor: "pointer", color: A, fontSize: "0.75rem", fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", textTransform: "uppercase", transition: "all 0.2s" }}
+                style={{ display: "flex", alignItems: "center", gap: 6, background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 10, padding: "8px 16px", cursor: "pointer", color: A, fontSize: "0.9rem", fontWeight: 700, fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", textTransform: "uppercase", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = `${A}2a`; }}
                 onMouseLeave={e => { e.currentTarget.style.background = `${A}14`; }}
               >
                 <ArrowLeft size={16} /> Back
               </button>
               <div style={{ flex: 1 }} />
-              <span style={{ fontSize: "0.5rem", color: "#333", fontFamily: "var(--font-digital), monospace", letterSpacing: "0.1em" }}>EVENT DETAIL</span>
+              <span style={{ fontSize: "0.6rem", color: "#333", fontFamily: "var(--font-digital), monospace", letterSpacing: "0.1em" }}>EVENT DETAIL</span>
             </div>
 
             {/* Content */}
@@ -894,12 +953,12 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, background: `${A}14`, border: `1px solid ${A}33`, borderRadius: 8, padding: "6px 14px", color: A }}>
                   {typeIcon}
-                  <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "Oswald, sans-serif" }}>{typeLabel}</span>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "Oswald, sans-serif" }}>{typeLabel}</span>
                 </div>
                 {ev.tag && (
-                  <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 6, background: `${A}22`, color: A, border: `1px solid ${A}55`, fontFamily: "Oswald, sans-serif" }}>{ev.tag}</span>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 6, background: `${A}22`, color: A, border: `1px solid ${A}55`, fontFamily: "Oswald, sans-serif" }}>{ev.tag}</span>
                 )}
-                <span className="digital-value" style={{ fontSize: "0.6rem", color: "#444", marginLeft: "auto" }}>
+                <span className="digital-value" style={{ fontSize: "0.72rem", color: "#444", marginLeft: "auto" }}>
                   <Clock size={11} style={{ verticalAlign: "middle", display: "inline", marginRight: 4 }} />
                   {formatTimestamp(ev.ts)}
                 </span>
@@ -919,18 +978,18 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                   <img src={cardImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div>
-                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "#e0e0e0", textTransform: "uppercase" }}>{p.name}</div>
-                  <div style={{ fontSize: "0.6rem", color: "#444" }}>#{p.number} · {p.team} · {p.featuredCard}</div>
+                  <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "1.02rem", color: "#e0e0e0", textTransform: "uppercase" }}>{p.name}</div>
+                  <div style={{ fontSize: "0.72rem", color: "#444" }}>#{p.number} · {p.team} · {p.featuredCard}</div>
                 </div>
                 <div style={{ marginLeft: "auto", textAlign: "right" }}>
-                  <div className="digital-value" style={{ fontSize: "0.85rem", color: A, textShadow: `0 0 10px ${A}55` }}>{p.priceChange}</div>
-                  <span className={statusBadgeClass(p.status)} style={{ fontSize: "0.5rem" }}>{statusLabel(p.status)}</span>
+                  <div className="digital-value" style={{ fontSize: "1.02rem", color: A, textShadow: `0 0 10px ${A}55` }}>{p.priceChange}</div>
+                  <span className={statusBadgeClass(p.status)} style={{ fontSize: "0.6rem" }}>{statusLabel(p.status)}</span>
                 </div>
               </div>
 
               {/* Main body */}
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: "24px 24px", marginBottom: 24 }}>
-                <p style={{ fontSize: "1rem", color: "#c0c0c0", lineHeight: 1.8, margin: 0 }}>
+                <p style={{ fontSize: "1.2rem", color: "#c0c0c0", lineHeight: 1.8, margin: 0 }}>
                   {ev.body}
                 </p>
               </div>
@@ -946,9 +1005,9 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
                     <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${A}44, transparent)` }} />
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                       {sec.icon}
-                      <span className="stat-label-mono" style={{ fontSize: "0.6rem", color: A, letterSpacing: "0.15em" }}>{sec.label}</span>
+                      <span className="stat-label-mono" style={{ fontSize: "0.72rem", color: A, letterSpacing: "0.15em" }}>{sec.label}</span>
                     </div>
-                    <p style={{ fontSize: "0.82rem", color: "#888", lineHeight: 1.8, margin: 0 }}>
+                    <p style={{ fontSize: "0.98rem", color: "#888", lineHeight: 1.8, margin: 0 }}>
                       {sec.content}
                     </p>
                   </div>
@@ -957,7 +1016,7 @@ export default function MultiDashboard({ players, A, AB, onBack, onNewRoster, vi
 
               {/* Bottom disclaimer */}
               <div style={{ marginTop: 32, padding: "14px 18px", background: `${A}08`, border: `1px solid ${A}14`, borderRadius: 10 }}>
-                <p className="stat-label-mono" style={{ fontSize: "0.5rem", color: "#444", margin: 0, lineHeight: 1.7, letterSpacing: "0.08em" }}>
+                <p className="stat-label-mono" style={{ fontSize: "0.6rem", color: "#444", margin: 0, lineHeight: 1.7, letterSpacing: "0.08em" }}>
                   DISCLAIMER: This analysis is for informational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Always conduct your own research before making investment decisions.
                 </p>
               </div>

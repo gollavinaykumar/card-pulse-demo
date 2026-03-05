@@ -16,10 +16,10 @@ import {
 // ── Card roster ───────────────────────────────────────────────────
 const CARDS = [
   { slug: "mahomes", image: "/mahomes.png" },
-  { slug: "allen",   image: "/JoshAllen.jpg" },
-  { slug: "burrow",  image: "/JoeBurrow.webp" },
-  { slug: "jackson", image: "/LamarJackson.jpg" },
-  { slug: "herbert", image: "/JustinHerbert.png" },
+  // { slug: "allen",   image: "/JoshAllen.jpg" },
+  // { slug: "burrow",  image: "/JoeBurrow.webp" },
+  // { slug: "jackson", image: "/LamarJackson.jpg" },
+  // { slug: "herbert", image: "/JustinHerbert.png" },
 ];
 
 // ── Themes ────────────────────────────────────────────────────────
@@ -187,11 +187,11 @@ function PlayerCard({ pd, image, A, AB, idx, single }: { pd: PlayerData; image: 
 
 // ══════════════════════════════════════════════════════════════════
 export default function HomePage() {
-  const [step, setStep]         = useState<"theme"|"select"|"buy"|"analytics">("theme");
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [theme, setTheme]       = useState<ThemeKey>("wwe");
-  const [activePlayer, setActivePlayer] = useState<string>("");
-  const [buyPrices, setBuyPrices] = useState<Record<string, string>>({});
+  const [step, setStep]         = useState<"theme"|"select"|"buy"|"analytics">("analytics");
+  const [selected, setSelected] = useState<Set<string>>(new Set(["mahomes"]));
+  const [theme, setTheme]       = useState<ThemeKey>("classic");
+  const [activePlayer, setActivePlayer] = useState<string>("mahomes");
+  const [buyPrices, setBuyPrices] = useState<Record<string, string>>({ mahomes: "4000" });
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const t  = THEMES[theme];
@@ -602,17 +602,20 @@ export default function HomePage() {
   // Always use the full dashboard. Single player = show that player's charts.
   // Multiple players = color-coded lines/dots per player.
   return (
-    <MultiDashboard
-      players={selectedPlayers}
-      A={A}
-      AB={AB}
-      onBack={() => setStep("select")}
-      onNewRoster={() => { setStep("theme"); setSelected(new Set()); setBuyPrices({}); }}
-      vignette={t.vignette}
-      themeName={t.name}
-      themeGlow={t.glow}
-      initialPlayer={selectedPlayers.length === 1 ? selectedPlayers[0].player.slug : "all"}
-      buyPrices={Object.fromEntries(Object.entries(buyPrices).map(([k, v]) => [k, parseFloat(v.replace(/[^0-9.]/g, ""))]).filter(([,v]) => !isNaN(v as number) && (v as number) > 0))}
-    />
+    <>
+      <LoadingScreen />
+      <MultiDashboard
+        players={selectedPlayers}
+        A={A}
+        AB={AB}
+        onBack={() => setStep("select")}
+        onNewRoster={() => { setStep("theme"); setSelected(new Set()); setBuyPrices({}); }}
+        vignette={t.vignette}
+        themeName={t.name}
+        themeGlow={t.glow}
+        initialPlayer={selectedPlayers.length === 1 ? selectedPlayers[0].player.slug : "all"}
+        buyPrices={Object.fromEntries(Object.entries(buyPrices).map(([k, v]) => [k, parseFloat(v.replace(/[^0-9.]/g, ""))]).filter(([,v]) => !isNaN(v as number) && (v as number) > 0))}
+      />
+    </>
   );
 }
